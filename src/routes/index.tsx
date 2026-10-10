@@ -98,10 +98,13 @@ function Home() {
               to="/create"
               className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
             >
-              <span className="grid size-14 place-items-center rounded-full border border-dashed border-border bg-muted text-foreground transition-colors hover:bg-muted/80 lg:size-16">
-                <Plus size={19} strokeWidth={2} />
+              <span className="relative grid size-14 place-items-center rounded-full border border-dashed border-border bg-muted p-[2px] transition-colors hover:border-primary/50 lg:size-16">
+                <Avatar name="Anu Joseph" className="size-full text-xs font-semibold ring-0" />
+                <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground shadow-xs ring-2 ring-background lg:size-5.5">
+                  <Plus size={13} strokeWidth={2.5} />
+                </span>
               </span>
-              <span className="w-full truncate text-center text-xs font-medium text-muted-foreground">
+              <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
                 Add trip
               </span>
             </Link>
