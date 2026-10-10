@@ -13,9 +13,9 @@ export function PlaceTag({ placeId }: { placeId: string }) {
     <Link
       to="/place/$id"
       params={{ id: p.id }}
-      className="tap-scale inline-flex max-w-full items-center gap-1.5 rounded-full glass px-3 py-1 text-xs font-medium text-on-media transition hover:bg-black/50"
+      className="tap-scale inline-flex max-w-full items-center gap-1.5 rounded-full bg-black/35 px-3 py-1 text-xs font-medium text-on-media backdrop-blur-md transition hover:bg-black/50"
     >
-      <MapPin size={12} className="shrink-0 text-primary" />
+      <MapPin size={12} className="shrink-0 text-white/85" />
       <span className="truncate">{p.name}</span>
     </Link>
   );
@@ -23,7 +23,7 @@ export function PlaceTag({ placeId }: { placeId: string }) {
 
 export function PostCardSkeleton() {
   return (
-    <div className="relative aspect-[10/11] overflow-hidden rounded-3xl border border-border/70 bg-card p-3.5 shadow-card sm:p-4 lg:aspect-[4/5]">
+    <div className="relative aspect-[10/11] overflow-hidden rounded-[20px] border border-border/70 bg-card p-3.5 shadow-card sm:p-4 lg:aspect-[4/5]">
       <Skeleton className="absolute inset-0 size-full rounded-none" />
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3.5 sm:p-4">
         <div className="min-w-0 flex-1 space-y-2">
@@ -55,7 +55,7 @@ export function PostCard({ post }: { post: Post }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <article className="relative aspect-[10/11] overflow-hidden rounded-3xl bg-card shadow-card ring-1 ring-border/70 lg:aspect-[4/5]">
+    <article className="relative aspect-[10/11] overflow-hidden rounded-[20px] bg-card shadow-card ring-1 ring-border/70 lg:aspect-[4/5]">
       {!loaded && <Skeleton className="absolute inset-0 size-full rounded-none" />}
       <img
         src={post.image}
@@ -71,18 +71,18 @@ export function PostCard({ post }: { post: Post }) {
           <Link to="/profile" className="tap-scale inline-flex max-w-full items-center gap-2.5">
             <Avatar
               name={c?.name ?? post.creator}
-              className="size-9 text-xs ring-2 ring-white/90 shadow-xs"
+              className="size-9 text-xs ring-2 ring-white/85 shadow-xs"
             />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight text-white drop-shadow-xs">
+              <p className="truncate text-base font-semibold leading-tight text-white drop-shadow-xs">
                 {c?.name ?? "Anonymous roamer"}
               </p>
-              <p className="truncate text-xs font-medium leading-tight text-white/80">
+              <p className="truncate text-xs font-normal leading-tight text-white/75">
                 @{post.creator}
               </p>
             </div>
           </Link>
-          <p className="line-clamp-2 text-xs leading-relaxed text-white/95 drop-shadow-xs">
+          <p className="line-clamp-2 text-xs leading-relaxed text-white/90 drop-shadow-xs">
             {post.caption}
           </p>
           <div className="pt-0.5">

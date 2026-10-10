@@ -89,7 +89,7 @@ function Home() {
         </header>
 
         <div className="mt-2.5 flex items-baseline justify-between lg:mt-0">
-          <h1 className="text-lg font-bold tracking-tight text-foreground lg:text-2xl">Discover</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Discover</h1>
           <span className="text-xs font-medium text-muted-foreground">Live roams</span>
         </div>
 
@@ -101,10 +101,10 @@ function Home() {
               to="/create"
               className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
             >
-              <span className="grid size-14 place-items-center rounded-full border-[1.5px] border-dashed border-primary/50 bg-secondary/80 text-primary transition-colors hover:bg-secondary lg:size-16">
-                <Plus size={20} strokeWidth={2.25} />
+              <span className="grid size-14 place-items-center rounded-full border border-dashed border-border bg-muted text-foreground transition-colors hover:bg-muted/80 lg:size-16">
+                <Plus size={19} strokeWidth={2} />
               </span>
-              <span className="w-full truncate text-center text-[11px] font-medium text-foreground lg:text-xs">
+              <span className="w-full truncate text-center text-xs font-medium text-muted-foreground">
                 Add trip
               </span>
             </Link>
@@ -114,17 +114,23 @@ function Home() {
                 to="/profile"
                 className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
               >
-                <span className="relative grid size-14 place-items-center rounded-full bg-gradient-to-tr from-primary via-[#FF7A45] to-teal p-[2px] lg:size-16">
+                <span
+                  className={
+                    c.live
+                      ? "relative grid size-14 place-items-center rounded-full bg-primary p-[2px] lg:size-16"
+                      : "relative grid size-14 place-items-center rounded-full bg-border p-[1.5px] lg:size-16"
+                  }
+                >
                   <span className="grid size-full place-items-center rounded-full bg-background p-[2px]">
                     <Avatar name={c.name} className="size-full text-xs font-semibold ring-0" />
                   </span>
                   {c.live && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] text-[10px] leading-none font-bold text-primary-foreground uppercase ring-2 ring-background">
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] text-[10px] leading-none font-semibold text-primary-foreground uppercase ring-2 ring-background">
                       LIVE
                     </span>
                   )}
                 </span>
-                <span className="w-full truncate text-center text-[11px] font-medium text-foreground/90 lg:text-xs">
+                <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
                   {c.name.split(" ")[0]}
                 </span>
               </Link>
@@ -145,41 +151,41 @@ function Home() {
         className="hidden lg:sticky lg:top-8 lg:flex lg:w-[320px] lg:shrink-0 lg:flex-col lg:gap-5"
       >
         {/* Card 1: Trending places */}
-        <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
+        <section className="rounded-[20px] border border-border bg-card p-5 shadow-card">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-bold tracking-tight text-foreground">
-              <Flame size={16} className="text-primary" />
+            <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-foreground">
+              <Flame size={16} className="text-muted-foreground" />
               Trending places
             </h2>
             <Link
               to="/explore"
-              className="tap-scale text-xs font-semibold text-primary hover:underline"
+              className="tap-scale text-xs font-medium text-muted-foreground hover:text-foreground"
             >
               See all
             </Link>
           </div>
-          <ol className="mt-3.5 space-y-2.5">
+          <ol className="mt-3.5 space-y-2">
             {topPlaces.map((p, i) => (
               <li key={p.id}>
                 <Link
                   to="/place/$id"
                   params={{ id: p.id }}
-                  className="tap-scale flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/40 p-2 transition-colors hover:border-primary/40 hover:bg-muted"
+                  className="tap-scale flex items-center gap-2.5 rounded-[16px] border border-border bg-card p-2 transition-colors hover:bg-muted/50"
                 >
-                  <span className="w-5 text-center text-xs font-bold text-muted-foreground tabular-nums">
+                  <span className="w-4 text-center text-xs font-medium text-muted-foreground tabular-nums">
                     {i + 1}
                   </span>
                   <img
                     src={p.image}
                     alt={p.name}
                     loading="lazy"
-                    className="size-10 shrink-0 rounded-xl object-cover"
+                    className="size-10 shrink-0 rounded-[12px] object-cover"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-foreground">{p.name}</p>
-                    <p className="truncate text-[11px] text-muted-foreground">{p.region}</p>
+                    <p className="truncate text-sm font-semibold text-foreground">{p.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{p.region}</p>
                   </div>
-                  <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-teal tabular-nums">
+                  <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-teal tabular-nums">
                     {p.score}
                   </span>
                 </Link>
@@ -189,17 +195,17 @@ function Home() {
         </section>
 
         {/* Card 2: Live trips */}
-        <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
+        <section className="rounded-[20px] border border-border bg-card p-5 shadow-card">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-bold tracking-tight text-foreground">
-              <Radio size={16} className="text-primary" />
+            <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-foreground">
+              <Radio size={16} className="text-muted-foreground" />
               Live trips
             </h2>
-            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary uppercase">
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
               {liveCreators.length} active
             </span>
           </div>
-          <div className="mt-3.5 space-y-2.5">
+          <div className="mt-3.5 space-y-2">
             {liveCreators.map((c, i) => {
               const p = allPlaces[[17, 0, 16][i] ?? i]!;
               return (
@@ -207,16 +213,16 @@ function Home() {
                   key={c.handle}
                   to="/place/$id"
                   params={{ id: p.id }}
-                  className="tap-scale flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/40 p-2.5 transition-colors hover:border-primary/40 hover:bg-muted"
+                  className="tap-scale flex items-center gap-3 rounded-[16px] border border-border bg-card p-2.5 transition-colors hover:bg-muted/50"
                 >
                   <span className="relative shrink-0 rounded-full p-[1.5px] ring-2 ring-primary">
                     <Avatar name={c.name} className="size-9 text-xs ring-0" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-foreground">{p.name}</p>
-                    <p className="truncate text-[11px] text-muted-foreground">@{c.handle}</p>
+                    <p className="truncate text-sm font-semibold text-foreground">{p.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">@{c.handle}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-primary-foreground uppercase">
+                  <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground uppercase">
                     LIVE
                   </span>
                 </Link>
@@ -226,27 +232,27 @@ function Home() {
         </section>
 
         {/* Card 3: Fuel the Roam goal card */}
-        <section className="rounded-3xl border border-border bg-secondary/45 p-5 shadow-card dark:bg-card">
+        <section className="rounded-[16px] border border-border bg-card p-5 shadow-card">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-foreground">
                 <Compass size={15} />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-xs font-bold text-foreground">
+                <p className="truncate text-sm font-semibold text-foreground">
                   Next trip: Spiti Valley
                 </p>
-                <p className="truncate text-[11px] text-muted-foreground">by @chai.nomad</p>
+                <p className="truncate text-xs text-muted-foreground">by @chai.nomad</p>
               </div>
             </div>
-            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold text-primary tabular-nums">
+            <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-teal tabular-nums">
               {pct}%
             </span>
           </div>
 
-          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-background/90 ring-1 ring-border/50 dark:bg-muted">
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-teal transition-all duration-300"
+              className="h-full rounded-full bg-teal transition-all duration-300"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -259,7 +265,7 @@ function Home() {
           <button
             type="button"
             onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
-            className="tap-scale mt-3.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-teal px-4 text-xs font-semibold text-white shadow-card transition-opacity hover:opacity-95"
+            className="tap-scale mt-3.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-float transition-opacity hover:bg-primary/90"
           >
             <Fuel size={15} />
             <span>Fuel the Roam</span>

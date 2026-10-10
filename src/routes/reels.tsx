@@ -61,7 +61,7 @@ function Reel({
       className="relative h-dvh snap-start snap-always bg-navy lg:flex lg:items-center lg:justify-center lg:gap-5 lg:bg-background lg:py-6"
     >
       {/* 9:16 Video Player container (full screen on mobile, 420px tall card on desktop) */}
-      <div className="relative size-full overflow-hidden bg-navy lg:h-[min(88dvh,780px)] lg:w-[420px] lg:shrink-0 lg:rounded-3xl lg:shadow-card lg:ring-1 lg:ring-border/70">
+      <div className="relative size-full overflow-hidden bg-navy lg:h-[min(88dvh,780px)] lg:w-[420px] lg:shrink-0 lg:rounded-[20px] lg:shadow-card lg:ring-1 lg:ring-border/70">
         <video
           ref={ref}
           src={post.video}
@@ -73,19 +73,23 @@ function Reel({
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/92 via-black/50 via-38% to-transparent"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 via-42% to-transparent"
         />
-        <div className="absolute bottom-[var(--bottom-nav-clearance)] left-4 right-20 space-y-2 text-on-media lg:bottom-5 lg:left-5 lg:right-5">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/95 via-black/70 to-transparent"
+        />
+        <div className="absolute bottom-[calc(var(--safe-bottom)+5.5rem)] left-4 right-20 space-y-1.5 text-on-media lg:bottom-5 lg:left-5 lg:right-5">
           <div className="flex items-center gap-2.5">
             <Avatar
               name={c?.name ?? post.creator}
-              className="size-9 text-xs ring-2 ring-white/90 shadow-xs"
+              className="size-9 text-xs ring-2 ring-white/85 shadow-xs"
             />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight text-white drop-shadow-xs">
+              <p className="truncate text-base font-semibold leading-tight text-white drop-shadow-xs">
                 {c?.name ?? post.creator}
               </p>
-              <p className="truncate text-xs font-medium leading-tight text-white/80">
+              <p className="truncate text-xs font-normal leading-tight text-white/75">
                 @{post.creator}
               </p>
             </div>
@@ -100,7 +104,7 @@ function Reel({
       </div>
 
       {/* Action stack: overlay on mobile aligned with caption bottom, to the right of the 9:16 player on desktop */}
-      <div className="absolute bottom-[var(--bottom-nav-clearance)] right-3.5 z-10 lg:static lg:self-end lg:pb-4">
+      <div className="absolute bottom-[calc(var(--safe-bottom)+5.5rem)] right-3.5 z-10 lg:static lg:self-end lg:pb-4">
         <ActionStack post={post} size="lg" />
       </div>
     </section>

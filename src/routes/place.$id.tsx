@@ -44,7 +44,7 @@ function PlacePage() {
     <div className="lg:mx-auto lg:grid lg:max-w-[1160px] lg:grid-cols-12 lg:items-start lg:gap-8 lg:p-8">
       {/* Left column on desktop: Hero image + Score & Pwoli/Waste buttons */}
       <div className="lg:sticky lg:top-8 lg:col-span-5">
-        <div className="relative h-72 sm:h-80 lg:h-[420px] lg:overflow-hidden lg:rounded-3xl lg:shadow-card lg:ring-1 lg:ring-border/70">
+        <div className="relative h-72 sm:h-80 lg:h-[420px] lg:overflow-hidden lg:rounded-[20px] lg:shadow-card lg:ring-1 lg:ring-border/70">
           <img src={place.image} alt={place.name} className="size-full object-cover" />
           <div className="absolute inset-0 bg-media-fade" />
           <button
@@ -59,20 +59,20 @@ function PlacePage() {
             <p className="flex items-center gap-1 text-xs opacity-90">
               <MapPin size={12} className="shrink-0" /> {place.region}
             </p>
-            <h1 className="truncate text-2xl font-bold tracking-tight lg:text-3xl">{place.name}</h1>
+            <h1 className="truncate text-2xl font-bold tracking-tight">{place.name}</h1>
           </div>
         </div>
 
-        <div className="relative -mt-4 rounded-t-3xl bg-background px-4 pt-5 lg:mt-4 lg:rounded-3xl lg:border lg:border-border lg:bg-card lg:p-5 lg:shadow-card">
+        <div className="relative -mt-4 rounded-t-[20px] bg-background px-4 pt-5 lg:mt-4 lg:rounded-[20px] lg:border lg:border-border lg:bg-card lg:p-5 lg:shadow-card">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="shrink-0 rounded-2xl bg-accent px-3.5 py-2 text-center">
+            <div className="shrink-0 rounded-[16px] bg-accent px-3.5 py-2 text-center">
               <p
                 key={score}
-                className="animate-count-pop text-2xl font-bold text-teal tabular-nums"
+                className="animate-count-pop text-xl font-semibold text-teal tabular-nums"
               >
                 {score}
               </p>
-              <p className="text-xs font-medium text-muted-foreground">SCORE</p>
+              <p className="text-[11px] font-medium text-muted-foreground">SCORE</p>
             </div>
             <button
               type="button"
@@ -82,23 +82,23 @@ function PlacePage() {
                 "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
                 v === 1
                   ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
-                  : "bg-secondary text-primary hover:bg-secondary/80",
+                  : "border border-border bg-muted text-foreground hover:bg-muted/80",
               )}
             >
-              <ArrowBigUp size={20} fill={v === 1 ? "currentColor" : "none"} /> Pwoli
+              <ArrowBigUp size={19} fill={v === 1 ? "currentColor" : "none"} /> Pwoli
             </button>
             <button
               type="button"
               aria-pressed={v === -1}
               onClick={() => votePlace(place.id, -1)}
               className={cn(
-                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
+                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-medium transition-colors duration-200",
                 v === -1
                   ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
-                  : "bg-muted text-foreground hover:bg-muted/80",
+                  : "border border-border bg-muted text-foreground hover:bg-muted/80",
               )}
             >
-              <ArrowBigDown size={20} fill={v === -1 ? "currentColor" : "none"} /> Waste
+              <ArrowBigDown size={19} fill={v === -1 ? "currentColor" : "none"} /> Waste
             </button>
           </div>
         </div>
@@ -136,11 +136,11 @@ function PlacePage() {
           )}
         >
           {items.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-card">
-              <span className="grid size-12 place-items-center rounded-full bg-secondary text-primary">
+            <div className="flex flex-col items-center justify-center rounded-[20px] border border-border bg-card px-6 py-10 text-center">
+              <span className="grid size-12 place-items-center rounded-full bg-muted text-foreground">
                 <Camera size={22} />
               </span>
-              <p className="mt-3 text-sm font-semibold text-foreground">No {tab} here yet</p>
+              <p className="mt-3 text-base font-semibold text-foreground">No {tab} here yet</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Visited {place.name}? Share your experience with fellow roamers.
               </p>

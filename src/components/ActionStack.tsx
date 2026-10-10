@@ -8,15 +8,15 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
   const s = useStore();
   const v = s.votes[post.id] ?? 0;
   const isLg = size === "lg";
-  const voteIconSize = isLg ? 22 : 19;
-  const subIconSize = isLg ? 19 : 17;
+  const voteIconSize = isLg ? 21 : 18;
+  const subIconSize = isLg ? 18 : 16;
   const circleClass = isLg ? "size-10 lg:size-11" : "size-9";
   const idleSurface = isLg
-    ? "glass hover:bg-black/50 lg:border-border lg:bg-card lg:text-foreground lg:shadow-card lg:hover:bg-muted"
-    : "glass hover:bg-black/50";
+    ? "bg-black/30 backdrop-blur-md hover:bg-black/45 lg:border lg:border-border lg:bg-card lg:text-foreground lg:shadow-card lg:hover:bg-muted"
+    : "bg-black/30 backdrop-blur-md hover:bg-black/45";
   const labelColor = isLg
-    ? "text-white drop-shadow-xs lg:text-foreground lg:drop-shadow-none"
-    : "text-white drop-shadow-xs";
+    ? "text-white/95 drop-shadow-xs lg:text-foreground lg:drop-shadow-none"
+    : "text-white/95 drop-shadow-xs";
   const upCount = formatCount(post.upvotes + (v === 1 ? 1 : 0));
 
   return (
@@ -38,7 +38,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             "grid place-items-center rounded-full transition-all duration-200 group-hover:scale-105",
             circleClass,
             v === 1
-              ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float ring-2 ring-white/50"
+              ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
               : idleSurface,
           )}
         >
@@ -50,7 +50,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold whitespace-nowrap",
+            "text-center text-[11px] leading-none font-medium whitespace-nowrap",
             labelColor,
           )}
         >
@@ -73,7 +73,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             "grid place-items-center rounded-full transition-all duration-200 group-hover:scale-105",
             circleClass,
             v === -1
-              ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card ring-2 ring-white/50"
+              ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
               : idleSurface,
           )}
         >
@@ -83,7 +83,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             className="transition-transform duration-200"
           />
         </span>
-        <span className={cn("text-center text-[11px] leading-none font-semibold", labelColor)}>
+        <span className={cn("text-center text-[11px] leading-none font-medium", labelColor)}>
           Waste
         </span>
       </button>
@@ -105,7 +105,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold tabular-nums",
+            "text-center text-[11px] leading-none font-medium tabular-nums",
             labelColor,
           )}
         >
@@ -133,7 +133,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold tabular-nums",
+            "text-center text-[11px] leading-none font-medium tabular-nums",
             labelColor,
           )}
         >
