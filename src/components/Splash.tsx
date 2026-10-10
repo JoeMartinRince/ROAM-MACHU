@@ -1,214 +1,118 @@
 import { useEffect, useState } from "react";
 import logoLight from "@/assets/logo-splash.png";
 import logoDark from "@/assets/logo-dark.png";
-import pinImg from "@/assets/pin-icon.png";
+import pinImg from "@/assets/logo-pin.png";
 
-// sessionStorage key — one play per browser session
-const SPLASH_KEY = "roam-splash-seen";
+const SEEN_KEY = "roam-splash-seen";
+const TOTAL_MS = 1850; // splash unmounts after this
 
-// All keyframes are scoped to .rm-splash so they don't affect anything else.
-// The `html[data-splash-seen] .rm-splash { display:none }` rule hides the
-// splash before hydration if the inline script already set the attribute.
-const KEYFRAMES = `
-@keyframes rm-pin-drop {
-  0%   { transform: translateY(-200px) scaleY(0.85); opacity: 0; }
-  55%  { opacity: 1; }
-  65%  { transform: translateY(0)       scaleY(1.06); }
-  78%  { transform: translateY(-14px)   scaleY(0.96); }
-  90%  { transform: translateY(5px)     scaleY(1.03); }
-  100% { transform: translateY(0)       scaleY(1);    opacity: 1; }
-}
-@keyframes rm-ripple {
-  0%   { transform: scale(0.2); opacity: 0.65; }
-  100% { transform: scale(4.5); opacity: 0;    }
-}
-@keyframes rm-logo-in {
-  0%   { opacity: 0; transform: scale(0.86) translateY(6px); }
-  100% { opacity: 1; transform: scale(1)    translateY(0);   }
-}
-@keyframes rm-logo-fade {
-  0%   { opacity: 0; }
-  100% { opacity: 1; }
-}
-@keyframes rm-fade-out {
-  0%   { opacity: 1; pointer-events: none; }
-  100% { opacity: 0; pointer-events: none; }
-}
-html[data-splash-seen] .rm-splash { display: none !important; }
-`;
-
-type Phase = "pin" | "ripple" | "logo" | "out" | "done";
+// Where the logo's own pin sits inside the logo image (percent of logo size).
+// The dropped pin is an exact copy of it, so it lands precisely in the "o" of "Roam".
+const PIN = { left: 25.9, top: 11.2, width: 19.4 };
 
 export function Splash() {
-  // Lazily read sessionStorage on first render — StrictMode-safe because
-  // useState initializer only runs once per mount lifecycle.
-  const [skip] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return !!sessionStorage.getItem(SPLASH_KEY);
-  });
-
-  // Lazily read prefers-reduced-motion — stays constant for the session.
-  const [reduced] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
-
-  // Read dark mode from the class already set by the inline THEME_INIT_SCRIPT.
-  const [isDark] = useState<boolean>(() => {
-    if (typeof document === "undefined") return false;
-    return document.documentElement.classList.contains("dark");
-  });
-
-  const [phase, setPhase] = useState<Phase>("pin");
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
-    if (skip) return;
-
-    let timers: ReturnType<typeof setTimeout>[] = [];
-
-    const after = (ms: number, fn: () => void) => {
-      const t = setTimeout(fn, ms);
-      timers.push(t);
-    };
-
-    if (reduced) {
-      // prefers-reduced-motion: just a simple fade-in then fade-out
-      after(1100, () => setPhase("out"));
-      after(1450, () => {
-        sessionStorage.setItem(SPLASH_KEY, "1");
-        document.documentElement.setAttribute("data-splash-seen", "1");
-        setPhase("done");
-      });
-    } else {
-      // Full pin-drop sequence
-      // 0–700 ms   → pin drops
-      after(700, () => setPhase("ripple"));
-      // 700–1100 ms → ripples expand
-      after(1100, () => setPhase("logo"));
-      // 1100–1500 ms → logo fades in
-      after(1500, () => setPhase("out"));
-      // 1500–1850 ms → whole overlay fades out, then unmount
-      after(1850, () => {
-        sessionStorage.setItem(SPLASH_KEY, "1");
-        document.documentElement.setAttribute("data-splash-seen", "1");
-        setPhase("done");
-      });
+    // Only play once per browser session
+    try {
+      if (sessionStorage.getItem(SEEN_KEY)) {
+        setShow(false);
+        return;
+      }
+    } catch {
+      /* storage unavailable: just play it */
     }
+    const t = setTimeout(() => {
+      try {
+        sessionStorage.setItem(SEEN_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      setShow(false);
+    }, TOTAL_MS);
+    return () => clearTimeout(t);
+  }, []);
 
-    return () => timers.forEach(clearTimeout);
-  }, [skip, reduced]);
-
-  // Already seen this session — render nothing immediately
-  if (skip || phase === "done") return null;
-
-  const logo = isDark ? logoDark : logoLight;
+  if (!show) return null;
 
   return (
-    <>
-      <style>{KEYFRAMES}</style>
+    <div
+      aria-hidden="true"
+      className="rm-splash fixed inset-0 z-[2000] grid place-items-center overflow-hidden bg-cream dark:bg-black"
+    >
+      <style>{CSS}</style>
 
-      {/* Overlay */}
-      <div
-        className="rm-splash fixed inset-0 z-[2000] flex items-center justify-center"
-        style={{
-          background: isDark ? "#000000" : "#FDFAF5",
-          animation:
-            phase === "out" ? "rm-fade-out 350ms ease forwards" : undefined,
-        }}
-        aria-hidden="true"
-      >
-        {/* ── Reduced-motion path: plain logo fade ── */}
-        {reduced ? (
-          <img
-            src={logo}
-            alt="Roam Machu"
-            draggable={false}
-            style={{
-              width: 208,
-              animation: "rm-logo-fade 600ms ease forwards",
-            }}
+      <div className="relative w-64">
+        {/* full logo, fades in around the pin */}
+        <div className="rm-logo relative z-[5]">
+          <img src={logoLight} alt="Roam Machu" className="block w-full dark:hidden" />
+          <img src={logoDark} alt="Roam Machu" className="hidden w-full dark:block" />
+        </div>
+
+        {/* pin + ground effects, positioned exactly over the logo's pin */}
+        <div
+          className="absolute"
+          style={{ left: `${PIN.left}%`, top: `${PIN.top}%`, width: `${PIN.width}%` }}
+        >
+          <span className="rm-shadow absolute left-1/2 top-full z-0 -mt-0.5 h-2.5 w-[95%] rounded-full bg-black/25 dark:bg-white/10" />
+          <span
+            className="rm-ring absolute left-1/2 top-full z-0 -mt-0.5 rounded-full border-2 border-[#FF5A1F]"
+            style={{ width: "230%", aspectRatio: "1" }}
           />
-        ) : (
-          /* ── Full animation path ── */
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 20,
-            }}
-          >
-            {/* Pin — visible during "pin" and "ripple" phases */}
-            {(phase === "pin" || phase === "ripple") && (
-              <div style={{ position: "relative", width: 64, height: 80 }}>
-                <img
-                  src={pinImg}
-                  alt=""
-                  draggable={false}
-                  style={{
-                    width: 64,
-                    height: 80,
-                    objectFit: "contain",
-                    transformOrigin: "bottom center",
-                    animation:
-                      "rm-pin-drop 700ms cubic-bezier(0.34,1.45,0.64,1) forwards",
-                  }}
-                />
-
-                {/* Ripple rings — visible only during "ripple" phase */}
-                {phase === "ripple" && (
-                  <>
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: "50%",
-                        bottom: -4,
-                        width: 48,
-                        height: 48,
-                        marginLeft: -24,
-                        marginBottom: -24,
-                        borderRadius: "50%",
-                        background: "rgba(255,77,22,0.28)",
-                        animation:
-                          "rm-ripple 520ms ease-out forwards",
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: "50%",
-                        bottom: -4,
-                        width: 48,
-                        height: 48,
-                        marginLeft: -24,
-                        marginBottom: -24,
-                        borderRadius: "50%",
-                        background: "rgba(255,77,22,0.18)",
-                        animation:
-                          "rm-ripple 520ms 110ms ease-out forwards",
-                      }}
-                    />
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Logo — visible during "logo" and "out" phases */}
-            {(phase === "logo" || phase === "out") && (
-              <img
-                src={logo}
-                alt="Roam Machu"
-                draggable={false}
-                style={{
-                  width: 208,
-                  animation: "rm-logo-in 400ms cubic-bezier(0.34,1.2,0.64,1) forwards",
-                }}
-              />
-            )}
-          </div>
-        )}
+          <span
+            className="rm-ring rm-ring-2 absolute left-1/2 top-full z-0 -mt-0.5 rounded-full border-2 border-[#00B3A4]"
+            style={{ width: "230%", aspectRatio: "1" }}
+          />
+          <img src={pinImg} alt="" className="rm-pin relative z-10 block h-auto w-full" />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
+
+const CSS = `
+.rm-splash { animation: rm-out 350ms ease-in 1500ms forwards; }
+@keyframes rm-out { to { opacity: 0; } }
+
+/* pin: drop into the "o", squash, bounce twice, settle */
+.rm-pin { opacity: 0; transform-origin: 50% 100%; animation: rm-drop 1000ms forwards; }
+@keyframes rm-drop {
+  0%   { opacity: 0; transform: translateY(-60vh) scale(1,1); animation-timing-function: cubic-bezier(.5,0,.9,.5); }
+  8%   { opacity: 1; }
+  45%  { opacity: 1; transform: translateY(0) scale(1.18,.82); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+  60%  { opacity: 1; transform: translateY(-30px) scale(.96,1.06); animation-timing-function: cubic-bezier(.6,0,.9,.5); }
+  74%  { opacity: 1; transform: translateY(0) scale(1.08,.92); }
+  84%  { opacity: 1; transform: translateY(0) scale(1,1); }
+  100% { opacity: 1; transform: translateY(0) scale(1,1); }
+}
+
+/* ground shadow grows as the pin nears the ground */
+.rm-shadow { opacity: 0; transform: translateX(-50%) scale(.2); animation: rm-shadow 1100ms ease-out forwards; }
+@keyframes rm-shadow {
+  0%   { opacity: 0;  transform: translateX(-50%) scale(.2); }
+  41%  { opacity: .9; transform: translateX(-50%) scale(1.1); }
+  55%  { opacity: .5; transform: translateX(-50%) scale(.7); }
+  68%  { opacity: .9; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0;  transform: translateX(-50%) scale(1); }
+}
+
+/* ground ripples (flattened rings) */
+.rm-ring { opacity: 0; transform: translate(-50%,-50%) scale(.1,.035); animation: rm-ping 950ms cubic-bezier(.1,.6,.3,1) 450ms forwards; }
+.rm-ring-2 { animation-delay: 650ms; }
+@keyframes rm-ping {
+  0%   { opacity: .75; transform: translate(-50%,-50%) scale(.1,.035); }
+  100% { opacity: 0;   transform: translate(-50%,-50%) scale(2.6,.9); }
+}
+
+/* wordmark fades in (opacity + de-blur only, so the logo's pin stays aligned with the dropped one) */
+.rm-logo { opacity: 0; filter: blur(6px); animation: rm-logo 450ms ease-out 850ms forwards; }
+@keyframes rm-logo { to { opacity: 1; filter: blur(0); } }
+
+/* reduced motion: skip the drop, just fade the logo in */
+@media (prefers-reduced-motion: reduce) {
+  .rm-pin, .rm-shadow, .rm-ring { display: none; }
+  .rm-logo { filter: none; animation: rm-fade 400ms ease-out 100ms forwards; }
+  @keyframes rm-fade { to { opacity: 1; } }
+}
+`;

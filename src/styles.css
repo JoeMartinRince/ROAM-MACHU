@@ -312,3 +312,7 @@
   color: #f5f5f5;
   box-shadow: var(--shadow-card);
 }
+
+html[data-splash-seen] .rm-splash {
+  display: none !important;
+}
