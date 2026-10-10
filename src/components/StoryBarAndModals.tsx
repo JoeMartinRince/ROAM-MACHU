@@ -86,7 +86,7 @@ export function StoryBar() {
   return (
     <>
       <div className="no-scrollbar -mx-4 mt-2.5 flex items-start gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-0 lg:gap-4 lg:px-0">
-        {/* + Add trip / story button (preserves friend's user Avatar + Plus badge design) */}
+        {/* + Add trip button (preserves friend's user Avatar + Plus badge design) */}
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
@@ -99,7 +99,7 @@ export function StoryBar() {
             </span>
           </span>
           <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
-            Add story
+            Add trip
           </span>
         </button>
 
@@ -117,21 +117,24 @@ export function StoryBar() {
               <span
                 className={
                   isLive
-                    ? "relative grid size-14 place-items-center rounded-full bg-primary p-[2px] lg:size-16"
-                    : "relative grid size-14 place-items-center rounded-full bg-border p-[1.5px] lg:size-16"
+                    ? "relative grid size-14 place-items-center rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-primary p-[2px] lg:size-16"
+                    : "relative grid size-14 place-items-center rounded-full bg-primary/75 p-[2px] lg:size-16"
                 }
               >
                 <span className="grid size-full overflow-hidden place-items-center rounded-full bg-background p-[2px]">
-                  <Avatar
-                    name={st.creatorName}
-                    className="size-full text-xs font-semibold ring-0"
-                  />
+                  {st.mediaUrl && st.mediaType === "image" ? (
+                    <img
+                      src={st.mediaUrl}
+                      alt={st.creatorName}
+                      className="size-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <Avatar
+                      name={st.creatorName}
+                      className="size-full text-xs font-semibold ring-0"
+                    />
+                  )}
                 </span>
-                {isLive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] font-mono text-[10px] leading-none font-semibold tracking-[0.1em] text-primary-foreground uppercase ring-2 ring-background">
-                    LIVE
-                  </span>
-                )}
               </span>
               <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
                 {st.creatorName.split(" ")[0]}
