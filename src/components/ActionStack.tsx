@@ -50,12 +50,15 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-medium whitespace-nowrap",
+            "text-center text-[11px] leading-none font-semibold font-display whitespace-nowrap",
             labelColor,
           )}
         >
           Pwoli{" "}
-          <span key={v} className="inline-block animate-count-pop tabular-nums">
+          <span
+            key={v}
+            className="inline-block animate-count-pop font-display font-semibold tabular-nums"
+          >
             {upCount}
           </span>
         </span>
@@ -83,7 +86,12 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             className="transition-transform duration-200"
           />
         </span>
-        <span className={cn("text-center text-[11px] leading-none font-medium", labelColor)}>
+        <span
+          className={cn(
+            "text-center text-[11px] leading-none font-semibold font-display",
+            labelColor,
+          )}
+        >
           Waste
         </span>
       </button>
@@ -105,7 +113,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-medium tabular-nums",
+            "text-center text-[11px] leading-none font-semibold font-display tabular-nums",
             labelColor,
           )}
         >
@@ -133,7 +141,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-medium tabular-nums",
+            "text-center text-[11px] leading-none font-semibold font-display tabular-nums",
             labelColor,
           )}
         >
