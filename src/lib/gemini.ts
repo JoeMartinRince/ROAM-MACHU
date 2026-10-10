@@ -1,9 +1,79 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
 
-const DEFAULT_API_KEY =
-  import.meta.env.VITE_GEMINI_API_KEY ||
-  ["AQ.Ab8RN6JQ7A9XLrif1ehXDNX44WZU2lY8pS5Z", "tZSKqxqea5Ddg"].join("-");
+const FALLBACK_KEY = ["AQ.Ab8RN6JQ7A9XLrif1ehXDNX44WZU2lY8pS5Z", "tZSKqxqea5Ddg"].join("-");
+
+function getGeminiApiKeys(): string[] {
+  const env = import.meta.env as Record<string, string | undefined>;
+  const rawList = [
+    env.VITE_GEMINI_API_KEY,
+    env.VITE_GEMINI_API_KEY_2,
+    env.VITE_GEMINI_API_KEY_3,
+    FALLBACK_KEY,
+  ];
+  const keys: string[] = [];
+  for (const item of rawList) {
+    if (!item) continue;
+    for (const part of item.split(",")) {
+      const trimmed = part.trim();
+      if (trimmed && !keys.includes(trimmed)) {
+        keys.push(trimmed);
+      }
+    }
+  }
+  return keys.length > 0 ? keys : [FALLBACK_KEY];
+}
+
+let keyCursor = 0;
+
+async function callGeminiJson(prompt: string): Promise<string> {
+  const keys = getGeminiApiKeys();
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < keys.length; attempt++) {
+    const apiKey = keys[(keyCursor + attempt) % keys.length]!;
+    try {
+      const res = await fetch(GEMINI_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        lastError = new Error(`Gemini API error: ${res.status}`);
+        continue;
+      }
+
+      keyCursor = (keyCursor + attempt + 1) % keys.length;
+      const data = await res.json();
+      const rawText: string =
+        data?.candidates?.[0]?.content?.parts?.find(
+          (p: { text?: string }) => typeof p.text === "string",
+        )?.text ?? "";
+
+      return rawText
+        .replace(/^```json\s*/i, "")
+        .replace(/```\s*$/i, "")
+        .trim();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("All Gemini API keys failed");
+}
 
 export interface PlaceAiOverviewData {
   summary: string;
@@ -76,38 +146,7 @@ Return ONLY valid JSON with this exact structure:
   "localTip": "One practical insider tip for travelers visiting here."
 }`;
 
-  const res = await fetch(GEMINI_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-goog-api-key": DEFAULT_API_KEY,
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }],
-        },
-      ],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Gemini API error: ${res.status}`);
-  }
-
-  const data = await res.json();
-  const rawText: string =
-    data?.candidates?.[0]?.content?.parts?.find(
-      (p: { text?: string }) => typeof p.text === "string",
-    )?.text ?? "";
-
-  const cleaned = rawText
-    .replace(/^```json\s*/i, "")
-    .replace(/```\s*$/i, "")
-    .trim();
+  const cleaned = await callGeminiJson(prompt);
   const parsed = JSON.parse(cleaned) as PlaceAiOverviewData;
 
   const result: PlaceAiOverviewData = {
@@ -195,38 +234,7 @@ Return ONLY valid JSON with this exact structure:
   ]
 }`;
 
-  const res = await fetch(GEMINI_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-goog-api-key": DEFAULT_API_KEY,
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }],
-        },
-      ],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Gemini API error: ${res.status}`);
-  }
-
-  const data = await res.json();
-  const rawText: string =
-    data?.candidates?.[0]?.content?.parts?.find(
-      (p: { text?: string }) => typeof p.text === "string",
-    )?.text ?? "";
-
-  const cleaned = rawText
-    .replace(/^```json\s*/i, "")
-    .replace(/```\s*$/i, "")
-    .trim();
+  const cleaned = await callGeminiJson(prompt);
   const parsed = JSON.parse(cleaned) as PlaceItineraryData;
 
   itineraryCache.set(cacheKey, parsed);
