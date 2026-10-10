@@ -41,64 +41,75 @@ function PlacePage() {
   const items = (tab === "posts" ? s.posts : s.reels).filter((p) => p.placeId === place.id);
 
   return (
-    <div>
-      <div className="relative h-80">
-        <img src={place.image} alt={place.name} className="size-full object-cover" />
-        <div className="absolute inset-0 bg-media-fade" />
-        <button
-          type="button"
-          onClick={() => router.history.back()}
-          aria-label="Back"
-          className="tap-scale absolute left-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] grid size-10 place-items-center rounded-full border border-border/60 bg-card/90 text-foreground shadow-card backdrop-blur-md"
-        >
-          <ChevronLeft />
-        </button>
-        <div className="absolute bottom-6 left-4 right-4 text-on-media">
-          <p className="flex items-center gap-1 text-xs opacity-90">
-            <MapPin size={12} className="shrink-0" /> {place.region}
-          </p>
-          <h1 className="truncate text-2xl font-bold tracking-tight">{place.name}</h1>
+    <div className="lg:mx-auto lg:grid lg:max-w-[1160px] lg:grid-cols-12 lg:items-start lg:gap-8 lg:p-8">
+      {/* Left column on desktop: Hero image + Score & Pwoli/Waste buttons */}
+      <div className="lg:sticky lg:top-8 lg:col-span-5">
+        <div className="relative h-80 lg:h-[420px] lg:overflow-hidden lg:rounded-3xl lg:shadow-card lg:ring-1 lg:ring-border/70">
+          <img src={place.image} alt={place.name} className="size-full object-cover" />
+          <div className="absolute inset-0 bg-media-fade" />
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            aria-label="Back"
+            className="tap-scale absolute left-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] grid size-10 place-items-center rounded-full border border-border/60 bg-card/90 text-foreground shadow-card backdrop-blur-md lg:top-4"
+          >
+            <ChevronLeft />
+          </button>
+          <div className="absolute bottom-6 left-4 right-4 text-on-media">
+            <p className="flex items-center gap-1 text-xs opacity-90">
+              <MapPin size={12} className="shrink-0" /> {place.region}
+            </p>
+            <h1 className="truncate text-2xl font-bold tracking-tight lg:text-3xl">{place.name}</h1>
+          </div>
+        </div>
+
+        <div className="relative -mt-4 rounded-t-3xl bg-background px-4 pt-5 lg:mt-4 lg:rounded-3xl lg:border lg:border-border lg:bg-card lg:p-5 lg:shadow-card">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="shrink-0 rounded-2xl bg-accent px-3.5 py-2 text-center">
+              <p
+                key={score}
+                className="animate-count-pop text-2xl font-bold text-teal tabular-nums"
+              >
+                {score}
+              </p>
+              <p className="text-xs font-medium text-muted-foreground">SCORE</p>
+            </div>
+            <button
+              type="button"
+              aria-pressed={v === 1}
+              onClick={() => votePlace(place.id, 1)}
+              className={cn(
+                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
+                v === 1
+                  ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
+                  : "bg-secondary text-primary hover:bg-secondary/80",
+              )}
+            >
+              <ArrowBigUp size={20} fill={v === 1 ? "currentColor" : "none"} /> Pwoli
+            </button>
+            <button
+              type="button"
+              aria-pressed={v === -1}
+              onClick={() => votePlace(place.id, -1)}
+              className={cn(
+                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
+                v === -1
+                  ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
+                  : "bg-muted text-foreground hover:bg-muted/80",
+              )}
+            >
+              <ArrowBigDown size={20} fill={v === -1 ? "currentColor" : "none"} /> Waste
+            </button>
+          </div>
         </div>
       </div>
-      <div className="relative -mt-4 rounded-t-3xl bg-background px-4 pt-5">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="shrink-0 rounded-2xl bg-accent px-3.5 py-2 text-center">
-            <p key={score} className="animate-count-pop text-2xl font-bold text-teal tabular-nums">
-              {score}
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">SCORE</p>
-          </div>
-          <button
-            type="button"
-            aria-pressed={v === 1}
-            onClick={() => votePlace(place.id, 1)}
-            className={cn(
-              "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
-              v === 1
-                ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
-                : "bg-secondary text-primary hover:bg-secondary/80",
-            )}
-          >
-            <ArrowBigUp size={20} fill={v === 1 ? "currentColor" : "none"} /> Pwoli
-          </button>
-          <button
-            type="button"
-            aria-pressed={v === -1}
-            onClick={() => votePlace(place.id, -1)}
-            className={cn(
-              "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
-              v === -1
-                ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
-                : "bg-muted text-foreground hover:bg-muted/80",
-            )}
-          >
-            <ArrowBigDown size={20} fill={v === -1 ? "currentColor" : "none"} /> Waste
-          </button>
-        </div>
+
+      {/* Right column on desktop: Tabs + Posts/Reels */}
+      <div className="px-4 lg:col-span-7 lg:px-0">
         <div
           role="tablist"
           aria-label="Place media tabs"
-          className="mt-6 grid grid-cols-2 border-b border-border text-sm font-medium"
+          className="mt-6 grid grid-cols-2 border-b border-border text-sm font-medium lg:mt-0"
         >
           {(["posts", "reels"] as const).map((t) => (
             <button
@@ -118,7 +129,12 @@ function PlacePage() {
             </button>
           ))}
         </div>
-        <div className="mt-4 space-y-4">
+        <div
+          className={cn(
+            "mt-4 space-y-4 lg:mt-6",
+            items.length > 0 && "lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0",
+          )}
+        >
           {items.length === 0 && (
             <div className="flex flex-col items-center justify-center rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-card">
               <span className="grid size-12 place-items-center rounded-full bg-secondary text-primary">
