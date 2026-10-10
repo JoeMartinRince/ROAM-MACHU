@@ -11,10 +11,16 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
   const voteIconSize = isLg ? 24 : 20;
   const subIconSize = isLg ? 20 : 17;
   const circleClass = isLg ? "size-11" : "size-9";
+  const idleSurface = isLg
+    ? "glass hover:bg-black/50 lg:border-border lg:bg-card lg:text-foreground lg:shadow-card lg:hover:bg-muted"
+    : "glass hover:bg-black/50";
+  const labelColor = isLg
+    ? "text-white drop-shadow-xs lg:text-foreground lg:drop-shadow-none"
+    : "text-white drop-shadow-xs";
   const upCount = formatCount(post.upvotes + (v === 1 ? 1 : 0));
 
   return (
-    <div className="flex w-13 flex-col items-center gap-2.5">
+    <div className="flex w-13 flex-col items-center gap-2.5 lg:w-14 lg:gap-3.5">
       <button
         type="button"
         aria-label={`Pwoli upvote (${upCount})`}
@@ -28,7 +34,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             circleClass,
             v === 1
               ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float ring-2 ring-white/50"
-              : "glass hover:bg-black/50",
+              : idleSurface,
           )}
         >
           <ArrowBigUp
@@ -37,7 +43,9 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             className="transition-transform duration-200"
           />
         </span>
-        <span className="text-[11px] leading-tight font-semibold whitespace-nowrap text-white drop-shadow-xs">
+        <span
+          className={cn("text-[11px] leading-tight font-semibold whitespace-nowrap", labelColor)}
+        >
           Pwoli{" "}
           <span key={v} className="inline-block animate-count-pop tabular-nums">
             {upCount}
@@ -58,7 +66,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             circleClass,
             v === -1
               ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card ring-2 ring-white/50"
-              : "glass hover:bg-black/50",
+              : idleSurface,
           )}
         >
           <ArrowBigDown
@@ -67,9 +75,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             className="transition-transform duration-200"
           />
         </span>
-        <span className="text-[11px] leading-tight font-semibold text-white drop-shadow-xs">
-          Waste
-        </span>
+        <span className={cn("text-[11px] leading-tight font-semibold", labelColor)}>Waste</span>
       </button>
 
       <button
@@ -80,13 +86,14 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
       >
         <span
           className={cn(
-            "grid place-items-center rounded-full glass transition-all duration-150 group-hover:bg-black/50",
+            "grid place-items-center rounded-full transition-all duration-150",
             circleClass,
+            idleSurface,
           )}
         >
           <MessageCircle size={subIconSize} />
         </span>
-        <span className="text-[11px] leading-tight font-semibold text-white tabular-nums drop-shadow-xs">
+        <span className={cn("text-[11px] leading-tight font-semibold tabular-nums", labelColor)}>
           {formatCount(post.comments)}
         </span>
       </button>
@@ -102,13 +109,14 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
       >
         <span
           className={cn(
-            "grid place-items-center rounded-full glass transition-all duration-150 group-hover:bg-black/50",
+            "grid place-items-center rounded-full transition-all duration-150",
             circleClass,
+            idleSurface,
           )}
         >
           <Share2 size={subIconSize} />
         </span>
-        <span className="text-[11px] leading-tight font-semibold text-white tabular-nums drop-shadow-xs">
+        <span className={cn("text-[11px] leading-tight font-semibold tabular-nums", labelColor)}>
           {formatCount(post.shares)}
         </span>
       </button>

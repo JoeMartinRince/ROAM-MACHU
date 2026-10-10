@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { creators, type Post } from "@/lib/data";
 import { useStore } from "@/lib/store";
 import { ActionStack } from "@/components/ActionStack";
@@ -26,32 +27,52 @@ export const Route = createFileRoute("/reels")({
   component: Reels,
 });
 
-function Reel({ post }: { post: Post }) {
+function Reel({
+  post,
+  index,
+  onActive,
+}: {
+  post: Post;
+  index: number;
+  onActive: (index: number) => void;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = ref.current!;
     const io = new IntersectionObserver(
-      ([e]) => (e.isIntersecting ? v.play().catch(() => {}) : v.pause()),
+      ([e]) => {
+        if (e.isIntersecting) {
+          onActive(index);
+          v.play().catch(() => {});
+        } else {
+          v.pause();
+        }
+      },
       { threshold: 0.6 },
     );
     io.observe(v);
     return () => io.disconnect();
-  }, []);
+  }, [index, onActive]);
   const c = creators.find((x) => x.handle === post.creator);
+
   return (
-    <section className="relative h-dvh snap-start snap-always bg-navy">
-      <video
-        ref={ref}
-        src={post.video}
-        poster={post.image}
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 size-full object-cover"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-media-fade" />
-      <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] flex items-end justify-between gap-3 px-4">
-        <div className="min-w-0 flex-1 space-y-2 text-on-media">
+    <section
+      data-reel-index={index}
+      className="relative h-dvh snap-start snap-always bg-navy lg:flex lg:items-center lg:justify-center lg:gap-5 lg:bg-background lg:py-6"
+    >
+      {/* 9:16 Video Player container (full screen on mobile, 420px tall card on desktop) */}
+      <div className="relative size-full overflow-hidden bg-navy lg:h-[min(88dvh,780px)] lg:w-[420px] lg:shrink-0 lg:rounded-3xl lg:shadow-card lg:ring-1 lg:ring-border/70">
+        <video
+          ref={ref}
+          src={post.video}
+          poster={post.image}
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 size-full object-cover"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-media-fade" />
+        <div className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] left-4 right-20 space-y-2 text-on-media lg:bottom-5 lg:left-5 lg:right-5">
           <div className="flex items-center gap-2.5">
             <Avatar
               name={c?.name ?? post.creator}
@@ -66,9 +87,11 @@ function Reel({ post }: { post: Post }) {
           </p>
           <PlaceTag placeId={post.placeId} />
         </div>
-        <div className="shrink-0">
-          <ActionStack post={post} size="lg" />
-        </div>
+      </div>
+
+      {/* Action stack: overlay on mobile, to the right of the 9:16 player on desktop */}
+      <div className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] right-4 z-10 lg:static lg:self-end lg:pb-4">
+        <ActionStack post={post} size="lg" />
       </div>
     </section>
   );
@@ -76,11 +99,82 @@ function Reel({ post }: { post: Post }) {
 
 function Reels() {
   const { reels } = useStore();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const scrollToIndex = useCallback(
+    (nextIdx: number) => {
+      const clamped = Math.max(0, Math.min(reels.length - 1, nextIdx));
+      const container = containerRef.current;
+      if (!container) return;
+      const target = container.querySelector<HTMLElement>(`[data-reel-index="${clamped}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        setActiveIndex(clamped);
+      }
+    },
+    [reels.length],
+  );
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        scrollToIndex(activeIndex + 1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        scrollToIndex(activeIndex - 1);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeIndex, scrollToIndex]);
+
   return (
-    <div className="no-scrollbar -mb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] h-dvh snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-y-contain">
-      {reels.map((r) => (
-        <Reel key={r.id} post={r} />
-      ))}
+    <div className="relative">
+      <div
+        ref={containerRef}
+        className="no-scrollbar -mb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] h-dvh snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-y-contain lg:mb-0"
+      >
+        {reels.map((r, idx) => (
+          <Reel key={r.id} post={r} index={idx} onActive={setActiveIndex} />
+        ))}
+      </div>
+
+      {/* Desktop up/down reel navigation buttons */}
+      <div className="hidden lg:fixed lg:right-8 lg:top-1/2 lg:z-20 lg:flex lg:-translate-y-1/2 lg:flex-col lg:items-center lg:gap-3">
+        <button
+          type="button"
+          aria-label="Previous reel"
+          disabled={activeIndex <= 0}
+          onClick={() => scrollToIndex(activeIndex - 1)}
+          className="tap-scale grid size-11 place-items-center rounded-full border border-border bg-card text-foreground shadow-card transition hover:bg-muted disabled:opacity-40"
+        >
+          <ChevronUp size={20} />
+        </button>
+        <span className="text-xs font-semibold text-muted-foreground tabular-nums">
+          {activeIndex + 1} / {reels.length}
+        </span>
+        <button
+          type="button"
+          aria-label="Next reel"
+          disabled={activeIndex >= reels.length - 1}
+          onClick={() => scrollToIndex(activeIndex + 1)}
+          className="tap-scale grid size-11 place-items-center rounded-full border border-border bg-card text-foreground shadow-card transition hover:bg-muted disabled:opacity-40"
+        >
+          <ChevronDown size={20} />
+        </button>
+      </div>
     </div>
   );
 }
