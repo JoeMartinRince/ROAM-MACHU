@@ -32,11 +32,11 @@ export const Route = createFileRoute("/")({
 
 function TripCirclesSkeleton() {
   return (
-    <div className="no-scrollbar -mx-4 mt-2.5 flex gap-3.5 overflow-x-auto px-4 pb-1 lg:mx-0 lg:px-0">
+    <div className="no-scrollbar -mx-4 mt-2 flex gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-3 lg:gap-4 lg:px-0">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex w-16 shrink-0 flex-col items-center gap-1.5">
-          <Skeleton className="size-16 rounded-full" />
-          <Skeleton className="h-3 w-12 rounded-full" />
+        <div key={i} className="flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5">
+          <Skeleton className="size-14 rounded-full lg:size-16" />
+          <Skeleton className="h-3 w-11 rounded-full" />
         </div>
       ))}
     </div>
@@ -63,48 +63,48 @@ function Home() {
     <div className="px-4 lg:mx-auto lg:flex lg:max-w-[1060px] lg:items-start lg:justify-center lg:gap-8 lg:px-8 lg:py-8">
       {/* Center feed column */}
       <div className="min-w-0 flex-1 lg:max-w-[600px]">
-        <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-border/50 bg-background/85 px-4 pb-2.5 pt-[calc(env(safe-area-inset-top,0px)+0.625rem)] backdrop-blur-xl lg:hidden">
-          <div aria-hidden="true" className="size-10 shrink-0" />
+        <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-border/50 bg-background/85 px-4 pb-2 pt-[calc(var(--safe-top)+0.5rem)] backdrop-blur-xl lg:hidden">
+          <div aria-hidden="true" className="size-9 shrink-0" />
           <Link
             to="/"
             aria-label="Roam Machu home"
             className="tap-scale inline-flex items-center justify-center"
           >
-            <img src={logo} alt="Roam Machu" className="h-8 w-auto object-contain dark:hidden" />
+            <img src={logo} alt="Roam Machu" className="h-7.5 w-auto object-contain dark:hidden" />
             <img
               src={logoDark}
               alt="Roam Machu"
-              className="hidden h-8 w-auto object-contain dark:block"
+              className="hidden h-7.5 w-auto object-contain dark:block"
             />
           </Link>
           <button
             type="button"
             aria-label="Notifications"
             onClick={() => toast("You're all caught up on new roams!")}
-            className="tap-scale relative grid size-10 shrink-0 place-items-center rounded-full border border-border/80 bg-muted/80 text-foreground transition-colors hover:bg-muted"
+            className="tap-scale relative grid size-9 shrink-0 place-items-center rounded-full border border-border/80 bg-muted/80 text-foreground transition-colors hover:bg-muted"
           >
-            <Bell size={18} />
-            <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-primary ring-2 ring-background" />
+            <Bell size={17} />
+            <span className="absolute right-2 top-2 size-2 rounded-full bg-primary ring-2 ring-background" />
           </button>
         </header>
 
-        <div className="mt-3 flex items-baseline justify-between lg:mt-0">
-          <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">Discover</h1>
+        <div className="mt-2.5 flex items-baseline justify-between lg:mt-0">
+          <h1 className="text-lg font-bold tracking-tight text-foreground lg:text-2xl">Discover</h1>
           <span className="text-xs font-medium text-muted-foreground">Live roams</span>
         </div>
 
         {!ready ? (
           <TripCirclesSkeleton />
         ) : (
-          <div className="no-scrollbar -mx-4 mt-2.5 flex items-start gap-3.5 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-3 lg:gap-4 lg:px-0">
+          <div className="no-scrollbar -mx-4 mt-2 flex items-start gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-3 lg:gap-4 lg:px-0">
             <Link
               to="/create"
-              className="tap-scale flex w-16 shrink-0 flex-col items-center gap-1.5"
+              className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
             >
-              <span className="grid size-16 place-items-center rounded-full border-[1.5px] border-dashed border-primary/50 bg-secondary/80 text-primary transition-colors hover:bg-secondary">
-                <Plus size={22} strokeWidth={2.25} />
+              <span className="grid size-14 place-items-center rounded-full border-[1.5px] border-dashed border-primary/50 bg-secondary/80 text-primary transition-colors hover:bg-secondary lg:size-16">
+                <Plus size={20} strokeWidth={2.25} />
               </span>
-              <span className="w-full truncate text-center text-xs font-medium text-foreground">
+              <span className="w-full truncate text-center text-[11px] font-medium text-foreground lg:text-xs">
                 Add trip
               </span>
             </Link>
@@ -112,19 +112,19 @@ function Home() {
               <Link
                 key={c.handle}
                 to="/profile"
-                className="tap-scale flex w-16 shrink-0 flex-col items-center gap-1.5"
+                className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
               >
-                <span className="relative grid size-16 place-items-center rounded-full bg-gradient-to-tr from-primary via-[#FF7A45] to-teal p-[2px]">
+                <span className="relative grid size-14 place-items-center rounded-full bg-gradient-to-tr from-primary via-[#FF7A45] to-teal p-[2px] lg:size-16">
                   <span className="grid size-full place-items-center rounded-full bg-background p-[2px]">
                     <Avatar name={c.name} className="size-full text-xs font-semibold ring-0" />
                   </span>
                   {c.live && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] text-[11px] leading-none font-bold text-primary-foreground uppercase ring-2 ring-background">
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] text-[10px] leading-none font-bold text-primary-foreground uppercase ring-2 ring-background">
                       LIVE
                     </span>
                   )}
                 </span>
-                <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
+                <span className="w-full truncate text-center text-[11px] font-medium text-foreground/90 lg:text-xs">
                   {c.name.split(" ")[0]}
                 </span>
               </Link>
@@ -132,7 +132,7 @@ function Home() {
           </div>
         )}
 
-        <div className="mt-4 space-y-4 lg:mt-6 lg:space-y-6">
+        <div className="mt-3 space-y-3.5 lg:mt-6 lg:space-y-6">
           {!ready
             ? Array.from({ length: 2 }).map((_, i) => <PostCardSkeleton key={i} />)
             : posts.map((p) => <PostCard key={p.id} post={p} />)}

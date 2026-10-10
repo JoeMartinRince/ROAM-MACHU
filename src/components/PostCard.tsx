@@ -23,10 +23,10 @@ export function PlaceTag({ placeId }: { placeId: string }) {
 
 export function PostCardSkeleton() {
   return (
-    <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/70 bg-card p-4 shadow-card">
+    <div className="relative aspect-[10/11] overflow-hidden rounded-3xl border border-border/70 bg-card p-3.5 shadow-card sm:p-4 lg:aspect-[4/5]">
       <Skeleton className="absolute inset-0 size-full rounded-none" />
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
-        <div className="min-w-0 flex-1 space-y-2.5">
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3.5 sm:p-4">
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-center gap-2.5">
             <Skeleton className="size-9 rounded-full bg-muted/80" />
             <div className="space-y-1.5">
@@ -37,7 +37,7 @@ export function PostCardSkeleton() {
           <Skeleton className="h-3.5 w-4/5 rounded-full bg-muted/80" />
           <Skeleton className="h-6 w-32 rounded-full bg-muted/80" />
         </div>
-        <div className="flex flex-col items-center gap-2.5">
+        <div className="flex w-14 flex-col items-center gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
               <Skeleton className="size-9 rounded-full bg-muted/80" />
@@ -55,7 +55,7 @@ export function PostCard({ post }: { post: Post }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <article className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-card shadow-card ring-1 ring-border/70">
+    <article className="relative aspect-[10/11] overflow-hidden rounded-3xl bg-card shadow-card ring-1 ring-border/70 lg:aspect-[4/5]">
       {!loaded && <Skeleton className="absolute inset-0 size-full rounded-none" />}
       <img
         src={post.image}
@@ -66,8 +66,8 @@ export function PostCard({ post }: { post: Post }) {
       />
       <div className="pointer-events-none absolute inset-0 bg-media-fade" />
 
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
-        <div className="min-w-0 flex-1 space-y-2 text-on-media">
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2.5 p-3.5 sm:p-4">
+        <div className="min-w-0 flex-1 space-y-1.5 text-on-media">
           <Link to="/profile" className="tap-scale inline-flex max-w-full items-center gap-2.5">
             <Avatar
               name={c?.name ?? post.creator}
@@ -77,7 +77,7 @@ export function PostCard({ post }: { post: Post }) {
               <p className="truncate text-sm font-semibold leading-tight text-white drop-shadow-xs">
                 {c?.name ?? "Anonymous roamer"}
               </p>
-              <p className="truncate text-xs font-medium text-white/80 leading-tight">
+              <p className="truncate text-xs font-medium leading-tight text-white/80">
                 @{post.creator}
               </p>
             </div>
@@ -90,9 +90,7 @@ export function PostCard({ post }: { post: Post }) {
           </div>
         </div>
 
-        <div className="shrink-0">
-          <ActionStack post={post} />
-        </div>
+        <ActionStack post={post} />
       </div>
     </article>
   );

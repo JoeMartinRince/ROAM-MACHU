@@ -44,14 +44,14 @@ function PlacePage() {
     <div className="lg:mx-auto lg:grid lg:max-w-[1160px] lg:grid-cols-12 lg:items-start lg:gap-8 lg:p-8">
       {/* Left column on desktop: Hero image + Score & Pwoli/Waste buttons */}
       <div className="lg:sticky lg:top-8 lg:col-span-5">
-        <div className="relative h-80 lg:h-[420px] lg:overflow-hidden lg:rounded-3xl lg:shadow-card lg:ring-1 lg:ring-border/70">
+        <div className="relative h-72 sm:h-80 lg:h-[420px] lg:overflow-hidden lg:rounded-3xl lg:shadow-card lg:ring-1 lg:ring-border/70">
           <img src={place.image} alt={place.name} className="size-full object-cover" />
           <div className="absolute inset-0 bg-media-fade" />
           <button
             type="button"
             onClick={() => router.history.back()}
             aria-label="Back"
-            className="tap-scale absolute left-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] grid size-10 place-items-center rounded-full border border-border/60 bg-card/90 text-foreground shadow-card backdrop-blur-md lg:top-4"
+            className="tap-scale absolute left-4 top-[calc(var(--safe-top)+0.75rem)] grid size-10 place-items-center rounded-full border border-border/60 bg-card/90 text-foreground shadow-card backdrop-blur-md lg:top-4"
           >
             <ChevronLeft />
           </button>

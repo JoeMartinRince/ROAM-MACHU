@@ -79,9 +79,9 @@ function Create() {
   const field =
     "w-full rounded-2xl border border-input bg-muted px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring";
   return (
-    <div className="px-4 pb-4 pt-[calc(env(safe-area-inset-top,0px)+1rem)] lg:px-8 lg:py-10">
+    <div className="px-4 pb-2 pt-[calc(var(--safe-top)+0.75rem)] lg:px-8 lg:py-10">
       <div className="lg:mx-auto lg:max-w-[560px] lg:rounded-3xl lg:border lg:border-border lg:bg-card lg:p-7 lg:shadow-card">
-        <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
+        <h1 className="text-lg font-bold tracking-tight text-foreground lg:text-2xl">
           Share a roam
         </h1>
         <label
@@ -96,7 +96,7 @@ function Create() {
             pick(e.dataTransfer.files?.[0]);
           }}
           className={cn(
-            "tap-scale relative mt-3 grid aspect-[4/5] cursor-pointer place-items-center overflow-hidden rounded-3xl border-2 border-dashed bg-secondary transition-colors lg:mt-4 lg:aspect-[16/10]",
+            "tap-scale relative mt-2.5 grid aspect-[10/11] cursor-pointer place-items-center overflow-hidden rounded-3xl border-2 border-dashed bg-secondary transition-colors lg:mt-4 lg:aspect-[16/10]",
             dragging ? "border-primary bg-primary/10" : "border-primary/40 hover:border-primary/70",
           )}
         >

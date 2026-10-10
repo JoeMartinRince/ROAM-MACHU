@@ -8,9 +8,9 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
   const s = useStore();
   const v = s.votes[post.id] ?? 0;
   const isLg = size === "lg";
-  const voteIconSize = isLg ? 24 : 20;
-  const subIconSize = isLg ? 20 : 17;
-  const circleClass = isLg ? "size-11" : "size-9";
+  const voteIconSize = isLg ? 22 : 19;
+  const subIconSize = isLg ? 19 : 17;
+  const circleClass = isLg ? "size-10 lg:size-11" : "size-9";
   const idleSurface = isLg
     ? "glass hover:bg-black/50 lg:border-border lg:bg-card lg:text-foreground lg:shadow-card lg:hover:bg-muted"
     : "glass hover:bg-black/50";
@@ -20,13 +20,18 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
   const upCount = formatCount(post.upvotes + (v === 1 ? 1 : 0));
 
   return (
-    <div className="flex w-13 flex-col items-center gap-2.5 lg:w-14 lg:gap-3.5">
+    <div
+      className={cn(
+        "flex w-14 shrink-0 flex-col items-center",
+        isLg ? "gap-2.5 lg:gap-3.5" : "gap-2",
+      )}
+    >
       <button
         type="button"
         aria-label={`Pwoli upvote (${upCount})`}
         aria-pressed={v === 1}
         onClick={() => votePost(post.id, 1)}
-        className="tap-scale group flex flex-col items-center gap-1 text-on-media"
+        className="tap-scale group flex w-full flex-col items-center gap-1 text-on-media"
       >
         <span
           className={cn(
@@ -44,7 +49,10 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
           />
         </span>
         <span
-          className={cn("text-[11px] leading-tight font-semibold whitespace-nowrap", labelColor)}
+          className={cn(
+            "text-center text-[11px] leading-none font-semibold whitespace-nowrap",
+            labelColor,
+          )}
         >
           Pwoli{" "}
           <span key={v} className="inline-block animate-count-pop tabular-nums">
@@ -58,7 +66,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         aria-label="Waste downvote"
         aria-pressed={v === -1}
         onClick={() => votePost(post.id, -1)}
-        className="tap-scale group flex flex-col items-center gap-1 text-on-media"
+        className="tap-scale group flex w-full flex-col items-center gap-1 text-on-media"
       >
         <span
           className={cn(
@@ -75,14 +83,16 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
             className="transition-transform duration-200"
           />
         </span>
-        <span className={cn("text-[11px] leading-tight font-semibold", labelColor)}>Waste</span>
+        <span className={cn("text-center text-[11px] leading-none font-semibold", labelColor)}>
+          Waste
+        </span>
       </button>
 
       <button
         type="button"
         aria-label={`Comments (${formatCount(post.comments)})`}
         onClick={() => toast("Comments coming soon")}
-        className="tap-scale group flex flex-col items-center gap-1 text-on-media"
+        className="tap-scale group flex w-full flex-col items-center gap-1 text-on-media"
       >
         <span
           className={cn(
@@ -93,7 +103,12 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         >
           <MessageCircle size={subIconSize} />
         </span>
-        <span className={cn("text-[11px] leading-tight font-semibold tabular-nums", labelColor)}>
+        <span
+          className={cn(
+            "text-center text-[11px] leading-none font-semibold tabular-nums",
+            labelColor,
+          )}
+        >
           {formatCount(post.comments)}
         </span>
       </button>
@@ -105,7 +120,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
           navigator.clipboard?.writeText(window.location.origin + "/place/" + post.placeId);
           toast.success("Link copied");
         }}
-        className="tap-scale group flex flex-col items-center gap-1 text-on-media"
+        className="tap-scale group flex w-full flex-col items-center gap-1 text-on-media"
       >
         <span
           className={cn(
@@ -116,7 +131,12 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         >
           <Share2 size={subIconSize} />
         </span>
-        <span className={cn("text-[11px] leading-tight font-semibold tabular-nums", labelColor)}>
+        <span
+          className={cn(
+            "text-center text-[11px] leading-none font-semibold tabular-nums",
+            labelColor,
+          )}
+        >
           {formatCount(post.shares)}
         </span>
       </button>
