@@ -4,7 +4,7 @@ export type Theme = "light" | "dark";
 export type ThemeMode = "light" | "dark" | "system";
 
 const STORAGE_KEY = "theme";
-const LIGHT_THEME_COLOR = "#FF5A1F";
+const LIGHT_THEME_COLOR = "#FF4D16";
 const DARK_THEME_COLOR = "#000000";
 
 const listeners = new Set<() => void>();

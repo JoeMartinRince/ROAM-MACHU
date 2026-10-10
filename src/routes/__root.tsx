@@ -19,7 +19,7 @@ import { Splash } from "@/components/Splash";
 import { BottomNav } from "@/components/BottomNav";
 import { getResolvedTheme, syncThemeDom, useTheme } from "@/hooks/use-theme";
 
-const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#000000":"#FF5A1F");}catch(e){}})();`;
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#000000":"#FF4D16");}catch(e){}})();`;
 
 function NotFoundComponent() {
   return (
@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Roam Machu" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#FF5A1F" },
+      { name: "theme-color", content: "#FF4D16" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap",
       },
       { rel: "icon", type: "image/png", href: pinIcon },
       { rel: "apple-touch-icon", href: "/icon-192.png" },
@@ -141,7 +141,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Splash />
-      <main className="relative mx-auto min-h-dvh max-w-md bg-background pb-32 shadow-card">
+      <main className="relative mx-auto min-h-dvh max-w-md bg-background pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] shadow-card">
         <div key={pathname} className="animate-page-enter">
           <Outlet />
         </div>
