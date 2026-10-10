@@ -13,7 +13,7 @@ import {
 import { useEffect, useRef, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import pinIcon from "@/assets/pin-icon.png";
+import logoIcon from "@/assets/logo-header.png";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Splash } from "@/components/Splash";
@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", type: "image/png", href: pinIcon },
+      { rel: "icon", type: "image/png", href: logoIcon },
       { rel: "apple-touch-icon", href: "/icon-192.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
     ],
