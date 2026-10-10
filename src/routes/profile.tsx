@@ -1,11 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Bookmark, Clapperboard, Compass, Eye, Fuel, Settings, X } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  Bookmark,
+  Camera,
+  Clapperboard,
+  Compass,
+  Eye,
+  Fuel,
+  Settings,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { formatCount, photos } from "@/lib/data";
 import { useStore } from "@/lib/store";
 import { Avatar } from "@/components/Avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useProfileAvatar, processAvatarFile } from "@/hooks/use-profile-avatar";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/profile")({
@@ -33,6 +45,26 @@ function Profile() {
   const [tab, setTab] = useState<"reels" | "trips" | "saved">("reels");
   const [following, setFollowing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { avatar, setAvatar, removeAvatar } = useProfileAvatar();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const dataUrl = await processAvatarFile(file);
+      setAvatar(dataUrl);
+      toast.success("Profile picture updated!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update profile picture");
+    } finally {
+      setUploading(false);
+      if (e.target) e.target.value = "";
+    }
+  };
+
   const grid =
     tab === "reels"
       ? s.reels
@@ -89,10 +121,33 @@ function Profile() {
         {/* Desktop row: Avatar + Name/Handle on left, Stats + Action buttons in a row on right */}
         <div className="flex w-full flex-col items-center lg:flex-row lg:flex-wrap lg:items-end lg:justify-between lg:gap-4 xl:flex-nowrap xl:gap-6">
           <div className="flex flex-col items-center lg:flex-row lg:items-end lg:gap-3.5 xl:gap-4 lg:text-left">
-            <Avatar
-              name="Anu Joseph"
-              className="size-[88px] text-xl ring-4 ring-white shadow-card dark:ring-black"
-            />
+            <div className="group relative">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                title="Change profile picture"
+                aria-label="Change profile picture"
+                className="tap-scale relative block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <Avatar
+                  name="Anu Joseph"
+                  src={avatar}
+                  className="size-[88px] text-xl ring-4 ring-white shadow-card transition duration-200 group-hover:brightness-95 dark:ring-black"
+                />
+                <span className="absolute bottom-0 right-0 grid size-7 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm ring-2 ring-white transition-transform duration-200 group-hover:scale-110 dark:ring-black">
+                  <Camera size={14} />
+                </span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                aria-label="Upload profile picture"
+              />
+            </div>
             <div className="lg:pb-1">
               <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-foreground lg:mt-0 whitespace-nowrap">
                 Anu Joseph
@@ -258,8 +313,51 @@ function Profile() {
                 <X size={16} />
               </button>
             </div>
-            <div className="mt-4">
-              <ThemeToggle />
+            <div className="mt-4 space-y-3.5">
+              <div className="rounded-[16px] border border-border bg-muted/40 p-3.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Profile Picture
+                </p>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar name="Anu Joseph" src={avatar} className="size-11 ring-2 ring-border" />
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-foreground">Anu Joseph</p>
+                      <p className="text-xs text-muted-foreground">
+                        {avatar ? "Custom photo set" : "Using initials"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={uploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="tap-scale inline-flex h-8 items-center gap-1.5 rounded-full bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-xs transition hover:bg-primary/90"
+                    >
+                      <Upload size={13} />
+                      <span>{avatar ? "Change" : "Upload"}</span>
+                    </button>
+                    {avatar && (
+                      <button
+                        type="button"
+                        aria-label="Remove photo"
+                        onClick={() => {
+                          removeAvatar();
+                          toast.success("Profile picture removed");
+                        }}
+                        className="tap-scale grid size-8 place-items-center rounded-full border border-border bg-background text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>
