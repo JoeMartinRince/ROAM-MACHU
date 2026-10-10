@@ -1,9 +1,11 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowBigDown, ArrowBigUp, Camera, ChevronLeft, MapPin } from "lucide-react";
+import { ArrowBigDown, ArrowBigUp, CalendarRange, Camera, ChevronLeft, MapPin } from "lucide-react";
 import { places } from "@/lib/data";
 import { placeScore, useStore, votePlace } from "@/lib/store";
 import { PostCard } from "@/components/PostCard";
+import { PlaceAiOverview } from "@/components/PlaceAiOverview";
+import { PlaceItinerary } from "@/components/PlaceItinerary";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/place/$id")({
@@ -17,12 +19,12 @@ export const Route = createFileRoute("/place/$id")({
       { title: `${loaderData?.place.name ?? "Place"} — Roam Machu` },
       {
         name: "description",
-        content: `Posts, reels and scores for ${loaderData?.place.name}, ${loaderData?.place.region}.`,
+        content: `Posts, reels and trip itinerary for ${loaderData?.place.name}, ${loaderData?.place.region}.`,
       },
       { property: "og:title", content: `${loaderData?.place.name} — Roam Machu` },
       {
         property: "og:description",
-        content: `Posts, reels and scores for ${loaderData?.place.name}.`,
+        content: `Posts, reels and trip itinerary for ${loaderData?.place.name}.`,
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -35,7 +37,7 @@ function PlacePage() {
   const { place } = Route.useLoaderData();
   const s = useStore();
   const router = useRouter();
-  const [tab, setTab] = useState<"posts" | "reels">("posts");
+  const [tab, setTab] = useState<"posts" | "reels" | "itinerary">("posts");
   const v = s.placeVotes[place.id] ?? 0;
   const score = placeScore(s, place.id);
   const items = (tab === "posts" ? s.posts : s.reels).filter((p) => p.placeId === place.id);
@@ -103,17 +105,42 @@ function PlacePage() {
               <ArrowBigDown size={19} fill={v === -1 ? "currentColor" : "none"} /> Waste
             </button>
           </div>
+
+          {/* AI Place Overview */}
+          <PlaceAiOverview placeName={place.name} region={place.region} className="mt-4" />
+
+          {/* Quick Trip Itinerary & Planner trigger */}
+          <div className="mt-3 flex items-center justify-between rounded-[16px] border border-border bg-muted/50 p-3">
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
+                <CalendarRange size={18} />
+              </span>
+              <div>
+                <p className="text-xs font-semibold text-foreground">Trip Itinerary & Planner</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Day-by-day schedule, budget & checklist
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setTab("itinerary")}
+              className="tap-scale rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20"
+            >
+              Plan Trip
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Right column on desktop: Tabs + Posts/Reels */}
+      {/* Right column on desktop: Tabs + Posts/Reels/Itinerary */}
       <div className="px-4 lg:col-span-7 lg:px-0">
         <div
           role="tablist"
           aria-label="Place media tabs"
-          className="mt-6 grid grid-cols-2 border-b border-border text-sm font-medium lg:mt-0"
+          className="mt-6 grid grid-cols-3 border-b border-border text-sm font-medium lg:mt-0"
         >
-          {(["posts", "reels"] as const).map((t) => (
+          {(["posts", "reels", "itinerary"] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -121,43 +148,54 @@ function PlacePage() {
               aria-selected={tab === t}
               onClick={() => setTab(t)}
               className={cn(
-                "tap-scale pb-2.5 text-xs font-medium capitalize transition-colors",
+                "tap-scale flex items-center justify-center gap-1.5 pb-2.5 text-xs font-medium capitalize transition-colors",
                 tab === t
                   ? "border-b-2 border-primary text-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {t}
+              {t === "itinerary" && <CalendarRange size={15} />}
+              <span>{t === "itinerary" ? "Itinerary" : t}</span>
             </button>
           ))}
         </div>
-        <div
-          className={cn(
-            "mt-4 space-y-4 lg:mt-6",
-            items.length > 0 && "lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0",
-          )}
-        >
-          {items.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-[20px] border border-border bg-card px-6 py-10 text-center">
-              <span className="grid size-12 place-items-center rounded-full bg-muted text-foreground">
-                <Camera size={22} />
-              </span>
-              <p className="mt-3 text-base font-semibold text-foreground">No {tab} here yet</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Visited {place.name}? Share your experience with fellow roamers.
-              </p>
-              <Link
-                to="/create"
-                className="tap-scale mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-float"
-              >
-                Be the first to post
-              </Link>
-            </div>
-          )}
-          {items.map((p) => (
-            <PostCard key={p.id} post={p} />
-          ))}
-        </div>
+
+        {tab === "itinerary" ? (
+          <PlaceItinerary
+            placeName={place.name}
+            region={place.region}
+            lat={place.lat}
+            lng={place.lng}
+          />
+        ) : (
+          <div
+            className={cn(
+              "mt-4 space-y-4 lg:mt-6",
+              items.length > 0 && "lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0",
+            )}
+          >
+            {items.length === 0 && (
+              <div className="flex flex-col items-center justify-center rounded-[20px] border border-border bg-card px-6 py-10 text-center">
+                <span className="grid size-12 place-items-center rounded-full bg-muted text-foreground">
+                  <Camera size={22} />
+                </span>
+                <p className="mt-3 text-base font-semibold text-foreground">No {tab} here yet</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Visited {place.name}? Share your experience with fellow roamers.
+                </p>
+                <Link
+                  to="/create"
+                  className="tap-scale mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-float"
+                >
+                  Be the first to post
+                </Link>
+              </div>
+            )}
+            {items.map((p) => (
+              <PostCard key={p.id} post={p} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

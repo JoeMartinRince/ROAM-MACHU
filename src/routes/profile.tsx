@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatCount, photos } from "@/lib/data";
-import { useStore } from "@/lib/store";
+import { fuelCreator, toggleFollow, useStore } from "@/lib/store";
 import { Avatar } from "@/components/Avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useProfileAvatar, processAvatarFile } from "@/hooks/use-profile-avatar";
@@ -43,11 +43,19 @@ export const Route = createFileRoute("/profile")({
 function Profile() {
   const s = useStore();
   const [tab, setTab] = useState<"reels" | "trips" | "saved">("reels");
-  const [following, setFollowing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { avatar, setAvatar, removeAvatar } = useProfileAvatar();
+
+  const creatorHandle = "chai.nomad";
+  const stats = s.creatorStats[creatorHandle];
+  const following = stats?.isFollowing ?? false;
+  const followersCount = stats?.followersCount ?? 47300;
+  const tripsFunded = stats?.tripsFunded ?? 12;
+  const raised = stats?.raisedAmount ?? 18400;
+  const goal = stats?.goalAmount ?? 30000;
+  const pct = Math.min(100, Math.round((raised / goal) * 100));
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,9 +79,6 @@ function Profile() {
       : tab === "trips"
         ? s.posts.filter((p) => p.creator === "chai.nomad")
         : s.posts.slice(4, 10);
-  const raised = 18400,
-    goal = 30000;
-  const pct = Math.round((raised / goal) * 100);
 
   const TABS = [
     { id: "reels" as const, label: "Reels", icon: Clapperboard },
@@ -160,9 +165,9 @@ function Profile() {
             {/* Slim stats row with thin dividers and no pill */}
             <div className="mt-3 grid w-full grid-cols-3 divide-x divide-border py-1 lg:mt-0 lg:w-auto">
               {[
-                ["Posts", 128],
-                ["Followers", 47300 + (following ? 1 : 0)],
-                ["Trips funded", 12],
+                ["Posts", 128 + Math.max(0, s.posts.length - 15) + Math.max(0, s.reels.length - 4)],
+                ["Followers", followersCount],
+                ["Trips funded", tripsFunded],
               ].map(([l, n]) => (
                 <div key={l} className="px-3 text-center lg:px-4">
                   <p className="font-display text-base font-normal text-foreground tabular-nums">
@@ -177,7 +182,12 @@ function Profile() {
               <button
                 type="button"
                 aria-pressed={following}
-                onClick={() => setFollowing((f) => !f)}
+                onClick={() => {
+                  const next = toggleFollow(creatorHandle);
+                  toast.success(
+                    next ? "Following @chai.nomad (saved to Neon DB)" : "Unfollowed @chai.nomad",
+                  );
+                }}
                 className={cn(
                   "tap-scale flex h-10 items-center justify-center rounded-full border border-border px-3 font-display text-xs font-normal transition-colors sm:text-sm lg:h-11 lg:px-5",
                   following
@@ -189,7 +199,10 @@ function Profile() {
               </button>
               <button
                 type="button"
-                onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
+                onClick={() => {
+                  fuelCreator(creatorHandle, 500);
+                  toast.success("Thanks for fueling the roam! (+₹500 saved to Neon DB) ⛽");
+                }}
                 className="tap-scale flex h-10 items-center justify-center gap-1 rounded-full bg-primary px-3 font-display text-xs font-normal text-primary-foreground shadow-float transition-colors hover:bg-primary/90 sm:gap-1.5 sm:text-sm lg:h-11 lg:px-5"
               >
                 <Fuel size={14} className="shrink-0" />

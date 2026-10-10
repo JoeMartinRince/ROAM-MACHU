@@ -1,6 +1,6 @@
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2 } from "lucide-react";
 import { formatCount, type Post } from "@/lib/data";
-import { useStore, votePost } from "@/lib/store";
+import { openCommentsModal, useStore, votePost } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -99,7 +99,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
       <button
         type="button"
         aria-label={`Comments (${formatCount(post.comments)})`}
-        onClick={() => toast("Comments coming soon")}
+        onClick={() => openCommentsModal(post.id)}
         className="tap-scale group flex w-full flex-col items-center gap-1 text-on-media"
       >
         <span

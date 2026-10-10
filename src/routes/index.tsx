@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Bell, Compass, Flame, Fuel, Plus, Radio } from "lucide-react";
+import { Bell, Compass, Flame, Fuel, Radio } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo-header.png";
 import logoDark from "@/assets/logo-dark.png";
 import { creators, formatCount, places as allPlaces } from "@/lib/data";
-import { rankedPlaces, useStore } from "@/lib/store";
+import { fuelCreator, rankedPlaces, useStore } from "@/lib/store";
 import { Avatar } from "@/components/Avatar";
+import { CommentsDrawer } from "@/components/CommentsDrawer";
 import { PostCard, PostCardSkeleton } from "@/components/PostCard";
+import { StoryBar } from "@/components/StoryBarAndModals";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/")({
@@ -55,9 +57,10 @@ function Home() {
 
   const topPlaces = useMemo(() => rankedPlaces(s).slice(0, 5), [s]);
   const liveCreators = useMemo(() => creators.filter((c) => c.live), []);
-  const raised = 18400;
-  const goal = 30000;
-  const pct = Math.round((raised / goal) * 100);
+  const mainStats = s.creatorStats["chai.nomad"];
+  const raised = mainStats?.raisedAmount ?? 18400;
+  const goal = mainStats?.goalAmount ?? 30000;
+  const pct = Math.min(100, Math.round((raised / goal) * 100));
 
   return (
     <div className="px-4 lg:mx-auto lg:flex lg:max-w-[1060px] lg:items-start lg:justify-center lg:gap-8 lg:px-8 lg:py-8">
@@ -90,53 +93,7 @@ function Home() {
 
         <h1 className="sr-only">Roam Machu</h1>
 
-        {!ready ? (
-          <TripCirclesSkeleton />
-        ) : (
-          <div className="no-scrollbar -mx-4 mt-2.5 flex items-start gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-0 lg:gap-4 lg:px-0">
-            <Link
-              to="/create"
-              className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
-            >
-              <span className="relative grid size-14 place-items-center rounded-full border border-dashed border-border bg-muted p-[2px] transition-colors hover:border-primary/50 lg:size-16">
-                <Avatar name="Anu Joseph" className="size-full text-xs font-semibold ring-0" />
-                <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground shadow-xs ring-2 ring-background lg:size-5.5">
-                  <Plus size={13} strokeWidth={2.5} />
-                </span>
-              </span>
-              <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
-                Add trip
-              </span>
-            </Link>
-            {creators.map((c) => (
-              <Link
-                key={c.handle}
-                to="/profile"
-                className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
-              >
-                <span
-                  className={
-                    c.live
-                      ? "relative grid size-14 place-items-center rounded-full bg-primary p-[2px] lg:size-16"
-                      : "relative grid size-14 place-items-center rounded-full bg-border p-[1.5px] lg:size-16"
-                  }
-                >
-                  <span className="grid size-full place-items-center rounded-full bg-background p-[2px]">
-                    <Avatar name={c.name} className="size-full text-xs font-semibold ring-0" />
-                  </span>
-                  {c.live && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] font-mono text-[10px] leading-none font-semibold tracking-[0.1em] text-primary-foreground uppercase ring-2 ring-background">
-                      LIVE
-                    </span>
-                  )}
-                </span>
-                <span className="w-full truncate text-center text-xs font-medium text-foreground/90">
-                  {c.name.split(" ")[0]}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
+        {!ready ? <TripCirclesSkeleton /> : <StoryBar />}
 
         <div className="mt-3 space-y-3.5 lg:mt-6 lg:space-y-6">
           {!ready
@@ -271,7 +228,10 @@ function Home() {
 
           <button
             type="button"
-            onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
+            onClick={() => {
+              fuelCreator("chai.nomad", 500);
+              toast.success("Thanks for fueling the roam! (+₹500 saved to Neon DB) ⛽");
+            }}
             className="tap-scale mt-3.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 font-display text-xs font-normal text-primary-foreground shadow-float transition-opacity hover:bg-primary/90"
           >
             <Fuel size={15} />
@@ -279,6 +239,8 @@ function Home() {
           </button>
         </section>
       </aside>
+
+      <CommentsDrawer />
     </div>
   );
 }

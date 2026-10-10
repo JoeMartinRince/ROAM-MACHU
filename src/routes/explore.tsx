@@ -257,7 +257,18 @@ function Explore() {
                             {p.region}
                           </p>
                         </div>
-                        <span className="mr-0.5 shrink-0 rounded-full bg-accent px-2.5 py-0.5 font-display text-xs font-normal text-teal tabular-nums">
+                        <span
+                          className={cn(
+                            "mr-0.5 shrink-0 rounded-full px-2.5 py-0.5 font-display text-xs font-normal text-white tabular-nums shadow-2xs",
+                            p.score >= 90
+                              ? "bg-emerald-500"
+                              : p.score >= 85
+                                ? "bg-sky-500"
+                                : p.score >= 80
+                                  ? "bg-amber-500"
+                                  : "bg-rose-500",
+                          )}
+                        >
                           {p.score}
                         </span>
                       </Link>
