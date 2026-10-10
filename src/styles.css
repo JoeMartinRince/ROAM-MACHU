@@ -285,8 +285,14 @@
     transform 0.15s ease,
     box-shadow 0.15s ease;
 }
-.score-pin:hover {
-  transform: translate(-50%, -100%) scale(1.08);
+.score-pin:hover,
+.score-pin-active {
+  transform: translate(-50%, -100%) scale(1.18);
+  background: var(--teal);
+  z-index: 2000;
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--teal) 32%, transparent),
+    var(--shadow-card);
 }
 .leaflet-div-icon {
   background: transparent;

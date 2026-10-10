@@ -3,20 +3,21 @@ import {
   Outlet,
   Link,
   createRootRouteWithContext,
+  useNavigate,
   useRouter,
   useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import pinIcon from "@/assets/pin-icon.png";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Splash } from "@/components/Splash";
-import { BottomNav } from "@/components/BottomNav";
+import { BottomNav, DesktopSidebar } from "@/components/BottomNav";
 import { getResolvedTheme, syncThemeDom, useTheme } from "@/hooks/use-theme";
 
 const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#000000":"#FF4D16");}catch(e){}})();`;
@@ -132,16 +133,70 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const { theme } = useTheme();
+  const gPressedRef = useRef<number>(0);
 
   useEffect(() => {
     syncThemeDom(getResolvedTheme());
   }, [pathname, theme]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+      const now = Date.now();
+
+      if (key === "g") {
+        gPressedRef.current = now;
+        return;
+      }
+
+      if (now - gPressedRef.current < 1000) {
+        gPressedRef.current = 0;
+        if (key === "h") {
+          e.preventDefault();
+          navigate({ to: "/" });
+          return;
+        }
+        if (key === "e") {
+          e.preventDefault();
+          navigate({ to: "/explore" });
+          return;
+        }
+        if (key === "r") {
+          e.preventDefault();
+          navigate({ to: "/reels" });
+          return;
+        }
+      }
+
+      if (key === "c") {
+        e.preventDefault();
+        navigate({ to: "/create" });
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [navigate]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Splash />
-      <main className="relative mx-auto min-h-dvh max-w-md bg-background pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] shadow-card">
+      <DesktopSidebar />
+      <main className="relative mx-auto min-h-dvh max-w-md bg-background pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] shadow-card lg:mx-0 lg:max-w-none lg:pb-0 lg:pl-[260px] lg:shadow-none">
         <div key={pathname} className="animate-page-enter">
           <Outlet />
         </div>
