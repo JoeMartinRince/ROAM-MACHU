@@ -50,14 +50,14 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold font-display whitespace-nowrap",
+            "text-center text-[11px] leading-none font-normal font-display whitespace-nowrap",
             labelColor,
           )}
         >
           Pwoli{" "}
           <span
             key={v}
-            className="inline-block animate-count-pop font-display font-semibold tabular-nums"
+            className="inline-block animate-count-pop font-display font-normal tabular-nums"
           >
             {upCount}
           </span>
@@ -88,7 +88,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold font-display",
+            "text-center text-[11px] leading-none font-normal font-display",
             labelColor,
           )}
         >
@@ -113,7 +113,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold font-display tabular-nums",
+            "text-center text-[11px] leading-none font-normal font-display tabular-nums",
             labelColor,
           )}
         >
@@ -141,7 +141,7 @@ export function ActionStack({ post, size = "md" }: { post: Post; size?: "md" | "
         </span>
         <span
           className={cn(
-            "text-center text-[11px] leading-none font-semibold font-display tabular-nums",
+            "text-center text-[11px] leading-none font-normal font-display tabular-nums",
             labelColor,
           )}
         >

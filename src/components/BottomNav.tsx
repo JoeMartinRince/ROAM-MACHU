@@ -73,7 +73,7 @@ export function DesktopSidebar() {
         <Link
           to="/create"
           className={cn(
-            "tap-scale mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 font-display text-sm font-semibold text-primary-foreground shadow-float transition-all hover:bg-primary/90",
+            "tap-scale mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 font-display text-sm font-normal text-primary-foreground shadow-float transition-all hover:bg-primary/90",
             pathname === "/create" && "ring-2 ring-primary ring-offset-2 ring-offset-background",
           )}
         >

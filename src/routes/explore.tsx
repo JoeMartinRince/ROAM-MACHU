@@ -85,7 +85,7 @@ function Explore() {
       {/* Left panel on desktop (400px), full column on mobile */}
       <div className="lg:flex lg:h-full lg:w-[400px] lg:shrink-0 lg:flex-col lg:border-r lg:border-border lg:bg-card/60">
         <div className="lg:border-b lg:border-border/70 lg:p-5">
-          <h1 className="font-display text-[21px] font-semibold text-foreground">Explore</h1>
+          <h1 className="font-display text-[24px] font-normal text-foreground">Explore</h1>
           <div className="mt-2.5 flex gap-2 lg:mt-3">
             <label className="flex h-10 flex-1 items-center gap-2 rounded-full border border-input bg-muted px-3.5 focus-within:ring-2 focus-within:ring-ring lg:h-11 lg:px-4">
               <Search size={16} className="shrink-0 text-muted-foreground" />
@@ -130,7 +130,7 @@ function Explore() {
                 aria-selected={mode === m}
                 onClick={() => setMode(m)}
                 className={cn(
-                  "tap-scale rounded-full py-1.5 font-display text-xs capitalize transition",
+                  "tap-scale rounded-full py-1.5 text-xs font-medium capitalize transition",
                   mode === m
                     ? "bg-card font-semibold text-primary shadow-2xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -174,7 +174,7 @@ function Explore() {
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"
                       />
-                      <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 text-[10px] leading-tight font-semibold tracking-wide text-primary-foreground uppercase">
+                      <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 font-mono text-[10px] leading-tight font-semibold tracking-[0.1em] text-primary-foreground uppercase">
                         LIVE
                       </span>
                       <div className="absolute bottom-2.5 left-2.5 right-2.5 text-on-media">
@@ -240,7 +240,7 @@ function Explore() {
                             : "border-border hover:bg-muted/40",
                         )}
                       >
-                        <span className="w-4 shrink-0 text-center font-display text-xs font-semibold text-muted-foreground tabular-nums">
+                        <span className="w-4 shrink-0 text-center font-mono text-[11px] font-medium tracking-[0.05em] text-muted-foreground tabular-nums">
                           {i + 1}
                         </span>
                         <img
@@ -257,7 +257,7 @@ function Explore() {
                             {p.region}
                           </p>
                         </div>
-                        <span className="mr-0.5 shrink-0 rounded-full bg-accent px-2.5 py-0.5 font-display text-xs font-semibold text-teal tabular-nums">
+                        <span className="mr-0.5 shrink-0 rounded-full bg-accent px-2.5 py-0.5 font-display text-xs font-normal text-teal tabular-nums">
                           {p.score}
                         </span>
                       </Link>

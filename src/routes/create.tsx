@@ -83,7 +83,7 @@ function Create() {
   return (
     <div className="px-4 pb-2 pt-[calc(var(--safe-top)+0.75rem)] lg:px-8 lg:py-10">
       <div className="lg:mx-auto lg:max-w-[560px] lg:rounded-[20px] lg:border lg:border-border lg:bg-card lg:p-7 lg:shadow-card">
-        <h1 className="font-display text-[21px] font-semibold text-foreground">Share a roam</h1>
+        <h1 className="font-display text-[22px] font-normal text-foreground">Share a roam</h1>
         <label
           onDragOver={(e) => {
             e.preventDefault();
@@ -232,7 +232,7 @@ function Create() {
           type="button"
           onClick={submit}
           disabled={progress !== null}
-          className="tap-scale mt-4 flex h-11 w-full items-center justify-center rounded-full bg-primary font-display text-sm font-semibold text-primary-foreground shadow-float transition hover:bg-primary/90 disabled:opacity-60"
+          className="tap-scale mt-4 flex h-11 w-full items-center justify-center rounded-full bg-primary font-display text-sm font-normal text-primary-foreground shadow-float transition hover:bg-primary/90 disabled:opacity-60"
         >
           Post
         </button>

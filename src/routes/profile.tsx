@@ -165,7 +165,7 @@ function Profile() {
                 ["Trips funded", 12],
               ].map(([l, n]) => (
                 <div key={l} className="px-3 text-center lg:px-4">
-                  <p className="font-display text-base font-semibold text-foreground tabular-nums">
+                  <p className="font-display text-base font-normal text-foreground tabular-nums">
                     {formatCount(n as number)}
                   </p>
                   <p className="whitespace-nowrap text-xs font-normal text-muted-foreground">{l}</p>
@@ -179,7 +179,7 @@ function Profile() {
                 aria-pressed={following}
                 onClick={() => setFollowing((f) => !f)}
                 className={cn(
-                  "tap-scale flex h-10 items-center justify-center rounded-full border border-border px-3 font-display text-xs font-semibold transition-colors sm:text-sm lg:h-11 lg:px-5",
+                  "tap-scale flex h-10 items-center justify-center rounded-full border border-border px-3 font-display text-xs font-normal transition-colors sm:text-sm lg:h-11 lg:px-5",
                   following
                     ? "bg-muted text-foreground hover:bg-muted/80"
                     : "bg-background text-foreground hover:bg-muted/60",
@@ -190,7 +190,7 @@ function Profile() {
               <button
                 type="button"
                 onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
-                className="tap-scale flex h-10 items-center justify-center gap-1 rounded-full bg-primary px-3 font-display text-xs font-semibold text-primary-foreground shadow-float transition-colors hover:bg-primary/90 sm:gap-1.5 sm:text-sm lg:h-11 lg:px-5"
+                className="tap-scale flex h-10 items-center justify-center gap-1 rounded-full bg-primary px-3 font-display text-xs font-normal text-primary-foreground shadow-float transition-colors hover:bg-primary/90 sm:gap-1.5 sm:text-sm lg:h-11 lg:px-5"
               >
                 <Fuel size={14} className="shrink-0" />
                 <span className="whitespace-nowrap">Fuel the Roam</span>
@@ -207,15 +207,20 @@ function Profile() {
                 <Compass size={13} />
               </span>
               <span className="truncate text-sm font-semibold text-foreground">
-                Next trip: Spiti Valley
+                <span className="font-mono text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase mr-1">
+                  NEXT TRIP:
+                </span>
+                Spiti Valley
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 text-xs tabular-nums">
-              <span className="font-display font-semibold text-foreground">
+              <span className="font-display font-normal text-foreground">
                 ₹{formatCount(raised)}
               </span>
-              <span className="font-display text-muted-foreground">/ ₹{formatCount(goal)}</span>
-              <span className="rounded-full bg-accent px-2 py-0.5 font-display text-xs font-semibold text-teal">
+              <span className="font-display font-normal text-muted-foreground">
+                / ₹{formatCount(goal)}
+              </span>
+              <span className="rounded-full bg-accent px-2 py-0.5 font-display text-xs font-normal text-teal">
                 {pct}%
               </span>
             </div>
@@ -244,7 +249,7 @@ function Profile() {
               aria-selected={active}
               onClick={() => setTab(id)}
               className={cn(
-                "tap-scale flex items-center justify-center gap-1.5 pb-2.5 font-display text-xs font-semibold capitalize transition-colors",
+                "tap-scale flex items-center justify-center gap-1.5 pb-2.5 text-xs font-medium capitalize transition-colors",
                 active
                   ? "border-b-2 border-primary text-primary"
                   : "text-muted-foreground hover:text-foreground",
@@ -281,7 +286,7 @@ function Profile() {
                 className="size-full object-cover"
               />
               <div className="pointer-events-none absolute inset-0 bg-media-fade" />
-              <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 font-display text-xs font-semibold text-white backdrop-blur-xs tabular-nums">
+              <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 font-mono text-[11px] font-medium tracking-[0.05em] text-white backdrop-blur-xs tabular-nums uppercase">
                 <Eye size={13} /> {formatCount(p.views)}
               </span>
             </Link>

@@ -125,7 +125,7 @@ function Home() {
                     <Avatar name={c.name} className="size-full text-xs font-semibold ring-0" />
                   </span>
                   {c.live && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] text-[10px] leading-none font-semibold text-primary-foreground uppercase ring-2 ring-background">
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 py-[1px] font-mono text-[10px] leading-none font-semibold tracking-[0.1em] text-primary-foreground uppercase ring-2 ring-background">
                       LIVE
                     </span>
                   )}
@@ -172,7 +172,7 @@ function Home() {
                   params={{ id: p.id }}
                   className="tap-scale flex items-center gap-2.5 rounded-[16px] border border-border bg-card p-2 transition-colors hover:bg-muted/50"
                 >
-                  <span className="w-4 text-center font-display text-xs font-semibold text-muted-foreground tabular-nums">
+                  <span className="w-4 text-center font-mono text-[11px] font-medium tracking-[0.05em] text-muted-foreground tabular-nums">
                     {i + 1}
                   </span>
                   <img
@@ -185,7 +185,7 @@ function Home() {
                     <p className="truncate text-sm font-semibold text-foreground">{p.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{p.region}</p>
                   </div>
-                  <span className="rounded-full bg-accent px-2.5 py-0.5 font-display text-xs font-semibold text-teal tabular-nums">
+                  <span className="rounded-full bg-accent px-2.5 py-0.5 font-display text-xs font-normal text-teal tabular-nums">
                     {p.score}
                   </span>
                 </Link>
@@ -222,7 +222,7 @@ function Home() {
                     <p className="truncate text-sm font-semibold text-foreground">{p.name}</p>
                     <p className="truncate text-xs text-muted-foreground">@{c.handle}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground uppercase">
+                  <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 font-mono text-[10px] font-semibold tracking-[0.1em] text-primary-foreground uppercase">
                     LIVE
                   </span>
                 </Link>
@@ -240,12 +240,15 @@ function Home() {
               </span>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-foreground">
-                  Next trip: Spiti Valley
+                  <span className="font-mono text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase mr-1">
+                    NEXT TRIP:
+                  </span>
+                  Spiti Valley
                 </p>
                 <p className="truncate text-xs text-muted-foreground">by @chai.nomad</p>
               </div>
             </div>
-            <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 font-display text-xs font-semibold text-teal tabular-nums">
+            <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 font-display text-xs font-normal text-teal tabular-nums">
               {pct}%
             </span>
           </div>
@@ -258,16 +261,18 @@ function Home() {
           </div>
 
           <div className="mt-2 flex items-center justify-between text-xs tabular-nums">
-            <span className="font-display font-semibold text-foreground">
+            <span className="font-display font-normal text-foreground">
               ₹{formatCount(raised)} raised
             </span>
-            <span className="font-display text-muted-foreground">Goal ₹{formatCount(goal)}</span>
+            <span className="font-display font-normal text-muted-foreground">
+              Goal ₹{formatCount(goal)}
+            </span>
           </div>
 
           <button
             type="button"
             onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
-            className="tap-scale mt-3.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 font-display text-xs font-semibold text-primary-foreground shadow-float transition-opacity hover:bg-primary/90"
+            className="tap-scale mt-3.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 font-display text-xs font-normal text-primary-foreground shadow-float transition-opacity hover:bg-primary/90"
           >
             <Fuel size={15} />
             <span>Fuel the Roam</span>

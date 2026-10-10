@@ -56,7 +56,7 @@ function PlacePage() {
             <ChevronLeft />
           </button>
           <div className="absolute bottom-6 left-4 right-4 text-on-media">
-            <p className="flex items-center gap-1 text-xs opacity-90">
+            <p className="flex items-center gap-1 font-mono text-[11px] font-medium tracking-[0.05em] uppercase opacity-90">
               <MapPin size={12} className="shrink-0" /> {place.region}
             </p>
             <h1 className="truncate text-xl font-semibold tracking-tight">{place.name}</h1>
@@ -68,11 +68,11 @@ function PlacePage() {
             <div className="shrink-0 rounded-[16px] bg-accent px-3.5 py-2 text-center">
               <p
                 key={score}
-                className="animate-count-pop font-display text-xl font-semibold text-teal tabular-nums"
+                className="animate-count-pop font-display text-xl font-normal text-teal tabular-nums"
               >
                 {score}
               </p>
-              <p className="font-display text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+              <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">
                 SCORE
               </p>
             </div>
@@ -81,7 +81,7 @@ function PlacePage() {
               aria-pressed={v === 1}
               onClick={() => votePlace(place.id, 1)}
               className={cn(
-                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-display text-sm font-semibold transition-colors duration-200",
+                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-display text-sm font-normal transition-colors duration-200",
                 v === 1
                   ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
                   : "border border-border bg-muted text-foreground hover:bg-muted/80",
@@ -94,7 +94,7 @@ function PlacePage() {
               aria-pressed={v === -1}
               onClick={() => votePlace(place.id, -1)}
               className={cn(
-                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-display text-sm font-semibold transition-colors duration-200",
+                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-display text-sm font-normal transition-colors duration-200",
                 v === -1
                   ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
                   : "border border-border bg-muted text-foreground hover:bg-muted/80",
@@ -121,7 +121,7 @@ function PlacePage() {
               aria-selected={tab === t}
               onClick={() => setTab(t)}
               className={cn(
-                "tap-scale pb-2.5 font-display text-xs font-semibold capitalize transition-colors",
+                "tap-scale pb-2.5 text-xs font-medium capitalize transition-colors",
                 tab === t
                   ? "border-b-2 border-primary text-foreground"
                   : "text-muted-foreground hover:text-foreground",
