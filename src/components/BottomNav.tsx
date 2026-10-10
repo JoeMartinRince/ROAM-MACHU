@@ -144,10 +144,10 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary navigation"
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] lg:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md px-4 pb-[calc(var(--safe-bottom)+var(--bottom-nav-offset))] lg:hidden"
     >
       <div className="liquid-glass pointer-events-auto relative rounded-full p-1.5">
-        <div className="relative grid grid-cols-5 items-center">
+        <div className="relative grid h-12 grid-cols-5 items-center">
           <span
             aria-hidden="true"
             className="liquid-capsule pointer-events-none absolute inset-y-0 left-0 w-1/5 rounded-full transition-all duration-[230ms] ease-[cubic-bezier(0.22,1,0.36,1)]"

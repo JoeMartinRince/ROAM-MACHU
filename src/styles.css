@@ -67,13 +67,20 @@
   --border: #e8ecf2;
   --input: #e8ecf2;
   --ring: #ff4d16;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --bottom-nav-height: 3.875rem;
+  --bottom-nav-offset: 0.75rem;
+  --bottom-nav-clearance: calc(
+    var(--bottom-nav-height) + var(--bottom-nav-offset) + var(--safe-bottom) + 1.25rem
+  );
   --shadow-float: 0 8px 20px -6px rgb(255 77 22 / 0.42);
   --shadow-card: 0 2px 12px -2px rgb(23 36 61 / 0.07), 0 1px 3px 0 rgb(23 36 61 / 0.04);
   --gradient-media: linear-gradient(
     to top,
-    rgb(12 19 33 / 0.84) 0%,
-    rgb(12 19 33 / 0.4) 40%,
-    transparent 72%
+    rgb(12 19 33 / 0.88) 0%,
+    rgb(12 19 33 / 0.46) 42%,
+    transparent 76%
   );
 }
 

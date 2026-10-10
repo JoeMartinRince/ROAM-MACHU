@@ -192,11 +192,19 @@ function RootComponent() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [navigate]);
 
+  const isReels = pathname.startsWith("/reels");
+
   return (
     <QueryClientProvider client={queryClient}>
       <Splash />
       <DesktopSidebar />
-      <main className="relative mx-auto min-h-dvh max-w-md bg-background pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] shadow-card lg:mx-0 lg:max-w-none lg:pb-0 lg:pl-[260px] lg:shadow-none">
+      <main
+        className={
+          isReels
+            ? "relative mx-auto min-h-dvh max-w-md bg-background pb-0 shadow-card lg:mx-0 lg:max-w-none lg:pl-[260px] lg:shadow-none"
+            : "relative mx-auto min-h-dvh max-w-md bg-background pb-[var(--bottom-nav-clearance)] shadow-card lg:mx-0 lg:max-w-none lg:pb-0 lg:pl-[260px] lg:shadow-none"
+        }
+      >
         <div key={pathname} className="animate-page-enter">
           <Outlet />
         </div>
