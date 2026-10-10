@@ -68,10 +68,10 @@ function Explore() {
   const live = creators.filter((c) => c.live);
 
   return (
-    <div className="px-4 pt-4">
-      <h1 className="text-2xl font-semibold">Explore</h1>
-      <div className="mt-4 flex gap-2">
-        <label className="flex flex-1 items-center gap-2 rounded-full border border-input bg-muted px-4 py-3 focus-within:ring-2 focus-within:ring-ring">
+    <div className="px-4 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
+      <h1 className="text-xl font-bold tracking-tight text-foreground">Explore</h1>
+      <div className="mt-3 flex gap-2">
+        <label className="flex h-11 flex-1 items-center gap-2 rounded-full border border-input bg-muted px-4 focus-within:ring-2 focus-within:ring-ring">
           <Search size={18} className="shrink-0 text-muted-foreground" />
           <input
             value={q}
@@ -95,7 +95,7 @@ function Explore() {
           type="button"
           aria-label="Filters"
           onClick={() => toast("Sorted by highest Roam Score")}
-          className="tap-scale grid size-12 shrink-0 place-items-center rounded-full border border-border bg-navy text-on-media shadow-card hover:opacity-90"
+          className="tap-scale grid size-11 shrink-0 place-items-center rounded-full border border-border bg-navy text-on-media shadow-card hover:opacity-90"
         >
           <SlidersHorizontal size={18} />
         </button>

@@ -29,12 +29,14 @@ export function BottomNav() {
         to={to}
         activeOptions={{ exact: to === "/" }}
         className={cn(
-          "tap-scale relative z-10 flex flex-col items-center justify-center gap-0.5 rounded-full py-2 text-xs font-medium transition-colors duration-200",
-          isActive ? "font-semibold text-primary" : "text-foreground/75 hover:text-foreground",
+          "tap-scale relative z-10 flex flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-[11px] transition-colors duration-200",
+          isActive
+            ? "font-semibold text-primary"
+            : "font-medium text-muted-foreground hover:text-foreground",
         )}
       >
         <Icon
-          size={20}
+          size={19}
           strokeWidth={isActive ? 2.25 : 1.9}
           className="transition-transform duration-200"
         />
@@ -46,7 +48,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary navigation"
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[1000] mx-auto max-w-md px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]"
     >
       <div className="liquid-glass pointer-events-auto relative rounded-full p-1.5">
         <div className="relative grid grid-cols-5 items-center">
@@ -66,12 +68,12 @@ export function BottomNav() {
               to="/create"
               aria-label="Create post"
               className={cn(
-                "liquid-plus tap-scale flex size-12 shrink-0 items-center justify-center rounded-full text-white hover:brightness-105",
+                "liquid-plus tap-scale flex size-11 shrink-0 items-center justify-center rounded-full text-white hover:brightness-105",
                 pathname === "/create" &&
                   "ring-2 ring-primary ring-offset-2 ring-offset-background",
               )}
             >
-              <Plus size={24} strokeWidth={2.5} className="block" />
+              <Plus size={22} strokeWidth={2.5} className="block" />
             </Link>
           </div>
 

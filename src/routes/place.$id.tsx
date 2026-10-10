@@ -49,7 +49,7 @@ function PlacePage() {
           type="button"
           onClick={() => router.history.back()}
           aria-label="Back"
-          className="tap-scale absolute left-4 top-4 grid size-10 place-items-center rounded-full border border-border/60 bg-card/90 text-foreground shadow-card backdrop-blur-md"
+          className="tap-scale absolute left-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] grid size-10 place-items-center rounded-full border border-border/60 bg-card/90 text-foreground shadow-card backdrop-blur-md"
         >
           <ChevronLeft />
         </button>
@@ -57,7 +57,7 @@ function PlacePage() {
           <p className="flex items-center gap-1 text-xs opacity-90">
             <MapPin size={12} className="shrink-0" /> {place.region}
           </p>
-          <h1 className="truncate text-3xl font-semibold">{place.name}</h1>
+          <h1 className="truncate text-2xl font-bold tracking-tight">{place.name}</h1>
         </div>
       </div>
       <div className="relative -mt-4 rounded-t-3xl bg-background px-4 pt-5">
@@ -73,7 +73,7 @@ function PlacePage() {
             aria-pressed={v === 1}
             onClick={() => votePlace(place.id, 1)}
             className={cn(
-              "tap-scale flex flex-1 items-center justify-center gap-1.5 rounded-full py-3 text-sm font-semibold transition-colors duration-200",
+              "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
               v === 1
                 ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
                 : "bg-secondary text-primary hover:bg-secondary/80",
@@ -86,7 +86,7 @@ function PlacePage() {
             aria-pressed={v === -1}
             onClick={() => votePlace(place.id, -1)}
             className={cn(
-              "tap-scale flex flex-1 items-center justify-center gap-1.5 rounded-full py-3 text-sm font-semibold transition-colors duration-200",
+              "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors duration-200",
               v === -1
                 ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
                 : "bg-muted text-foreground hover:bg-muted/80",

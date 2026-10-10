@@ -40,6 +40,13 @@ function Profile() {
         : s.posts.slice(4, 10);
   const raised = 18400,
     goal = 30000;
+  const pct = Math.round((raised / goal) * 100);
+
+  const TABS = [
+    { id: "reels" as const, label: "Reels", icon: Clapperboard },
+    { id: "trips" as const, label: "Trips", icon: Compass },
+    { id: "saved" as const, label: "Saved", icon: Bookmark },
+  ];
 
   const EmptyIcon = tab === "trips" ? Compass : tab === "saved" ? Bookmark : Clapperboard;
   const emptyTitle =
@@ -57,36 +64,41 @@ function Profile() {
 
   return (
     <div>
-      <div className="relative h-44 w-full">
+      <div className="relative h-40 w-full overflow-hidden">
         <img src={photos.hills} alt="" className="size-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35" />
       </div>
 
-      <div className="relative -mt-12 flex flex-col items-center px-4 text-center">
-        <Avatar name="Anu Joseph" className="size-24 text-2xl ring-4 ring-background shadow-card" />
-        <h1 className="mt-2 text-xl font-semibold">Anu Joseph</h1>
-        <p className="text-sm text-muted-foreground">@chai.nomad</p>
+      <div className="relative -mt-11 flex flex-col items-center px-4 text-center">
+        <Avatar
+          name="Anu Joseph"
+          className="size-[88px] text-xl ring-4 ring-background shadow-card"
+        />
+        <h1 className="mt-2.5 text-lg font-bold tracking-tight text-foreground">Anu Joseph</h1>
+        <p className="mt-0.5 text-xs font-medium text-muted-foreground">@chai.nomad</p>
 
-        <div className="mt-4 grid w-full grid-cols-3 divide-x divide-border">
+        <div className="mt-3.5 grid w-full grid-cols-3 divide-x divide-border/80 rounded-2xl border border-border/80 bg-muted/45 py-2.5">
           {[
             ["Posts", 128],
             ["Followers", 47300 + (following ? 1 : 0)],
             ["Trips funded", 12],
           ].map(([l, n]) => (
             <div key={l} className="px-2">
-              <p className="text-lg font-semibold tabular-nums">{formatCount(n as number)}</p>
-              <p className="text-xs text-muted-foreground">{l}</p>
+              <p className="text-base font-bold text-foreground tabular-nums">
+                {formatCount(n as number)}
+              </p>
+              <p className="text-xs font-medium text-muted-foreground">{l}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 flex w-full gap-2.5 sm:gap-3">
+        <div className="mt-3.5 grid w-full grid-cols-2 gap-2.5">
           <button
             type="button"
             aria-pressed={following}
             onClick={() => setFollowing((f) => !f)}
             className={cn(
-              "tap-scale flex-1 rounded-full py-3 text-sm font-semibold transition-colors",
+              "tap-scale flex h-11 items-center justify-center rounded-full px-4 text-sm font-semibold transition-colors",
               following
                 ? "border border-border bg-muted text-foreground hover:bg-muted/80"
                 : "bg-primary text-primary-foreground shadow-float hover:bg-primary/90",
@@ -97,57 +109,72 @@ function Profile() {
           <button
             type="button"
             onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
-            className="tap-scale flex flex-1 items-center justify-center gap-1.5 rounded-full bg-teal px-3 py-3 text-sm font-semibold text-white shadow-card hover:opacity-90"
+            className="tap-scale flex h-11 items-center justify-center gap-1.5 rounded-full bg-teal px-4 text-sm font-semibold text-white shadow-card hover:opacity-95"
           >
             <Fuel size={16} className="shrink-0" />
             <span className="truncate">Fuel the Roam</span>
           </button>
         </div>
 
-        <div className="mt-4 w-full rounded-2xl border border-border bg-cream p-4 text-left shadow-card dark:bg-card">
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="truncate font-semibold text-foreground">Next trip: Spiti Valley</span>
-            <span className="shrink-0 text-xs font-medium text-muted-foreground tabular-nums">
-              ₹{formatCount(raised)} / ₹{formatCount(goal)}
-            </span>
+        <div className="mt-3.5 w-full rounded-2xl border border-border/80 bg-secondary/45 px-3.5 py-3 text-left shadow-card dark:bg-card">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                <Compass size={13} />
+              </span>
+              <span className="truncate text-xs font-semibold text-foreground">
+                Next trip: Spiti Valley
+              </span>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5 text-xs tabular-nums">
+              <span className="font-semibold text-foreground">₹{formatCount(raised)}</span>
+              <span className="text-muted-foreground">/ ₹{formatCount(goal)}</span>
+              <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[11px] font-bold text-primary">
+                {pct}%
+              </span>
+            </div>
           </div>
-          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-card dark:bg-muted">
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-background/90 ring-1 ring-border/50 dark:bg-muted">
             <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${(raised / goal) * 100}%` }}
+              className="h-full rounded-full bg-gradient-to-r from-primary to-teal transition-all duration-300"
+              style={{ width: `${pct}%` }}
             />
           </div>
         </div>
 
-        <ThemeToggle className="mt-3" />
+        <ThemeToggle className="mt-2.5" />
       </div>
 
       <div
         role="tablist"
         aria-label="Profile sections"
-        className="mt-6 grid grid-cols-3 border-b border-border text-sm font-medium"
+        className="mt-4 grid grid-cols-3 border-b border-border px-4 text-sm font-medium"
       >
-        {(["reels", "trips", "saved"] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
-            className={cn(
-              "tap-scale pb-2.5 capitalize transition-colors",
-              tab === t
-                ? "border-b-2 border-primary font-semibold text-foreground"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t}
-          </button>
-        ))}
+        {TABS.map(({ id, label, icon: Icon }) => {
+          const active = tab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setTab(id)}
+              className={cn(
+                "tap-scale flex items-center justify-center gap-1.5 pb-2.5 capitalize transition-colors",
+                active
+                  ? "border-b-2 border-primary font-semibold text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon size={15} className="shrink-0" />
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {grid.length === 0 ? (
-        <div className="m-4 flex flex-col items-center justify-center rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-card">
+        <div className="m-4 flex flex-col items-center justify-center rounded-3xl border border-border/70 bg-card px-6 py-10 text-center shadow-card">
           <span className="grid size-12 place-items-center rounded-full bg-secondary text-primary">
             <EmptyIcon size={22} />
           </span>
@@ -155,13 +182,13 @@ function Profile() {
           <p className="mt-1 text-xs text-muted-foreground">{emptySubtitle}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 p-4">
+        <div className="grid grid-cols-2 gap-3 px-4 pt-3.5 pb-4">
           {grid.map((p) => (
             <Link
               key={p.id}
               to={p.video ? "/reels" : "/place/$id"}
               params={{ id: p.placeId }}
-              className="tap-scale relative aspect-[4/5] overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/40"
+              className="tap-scale relative aspect-[4/5] overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/60"
             >
               <img
                 src={p.image}
@@ -169,9 +196,9 @@ function Profile() {
                 loading="lazy"
                 className="size-full object-cover"
               />
-              <div className="absolute inset-0 bg-media-fade" />
-              <span className="absolute bottom-2.5 left-2.5 flex items-center gap-1 text-xs font-medium text-on-media tabular-nums drop-shadow-sm">
-                <Eye size={14} /> {formatCount(p.views)}
+              <div className="pointer-events-none absolute inset-0 bg-media-fade" />
+              <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-xs tabular-nums">
+                <Eye size={13} /> {formatCount(p.views)}
               </span>
             </Link>
           ))}

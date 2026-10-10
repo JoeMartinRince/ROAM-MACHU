@@ -14,15 +14,15 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-between gap-3 rounded-2xl border border-border bg-card p-3 shadow-card",
+        "flex w-full items-center justify-between gap-2 rounded-2xl border border-border/80 bg-muted/45 px-3.5 py-2 shadow-2xs",
         className,
       )}
     >
-      <span className="pl-1 text-sm font-semibold text-foreground">Appearance</span>
+      <span className="text-xs font-semibold text-foreground">Appearance</span>
       <div
         role="radiogroup"
         aria-label="Appearance"
-        className="grid grid-cols-3 rounded-full border border-border/70 bg-muted p-1 text-xs font-medium"
+        className="grid grid-cols-3 rounded-full border border-border/80 bg-background p-0.5 text-xs font-medium dark:bg-card"
       >
         {OPTIONS.map(({ value, label, icon: Icon }) => {
           const active = mode === value;
@@ -34,13 +34,13 @@ export function ThemeToggle({ className }: { className?: string }) {
               aria-checked={active}
               onClick={() => setThemeMode(value)}
               className={cn(
-                "tap-scale flex items-center justify-center gap-1 rounded-full px-2.5 py-1.5 transition-colors",
+                "tap-scale flex items-center justify-center gap-1 rounded-full px-2.5 py-1 transition-colors",
                 active
-                  ? "bg-card font-semibold text-primary shadow-card"
+                  ? "bg-primary font-semibold text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Icon size={13} className="shrink-0" />
+              <Icon size={12} className="shrink-0" />
               <span>{label}</span>
             </button>
           );

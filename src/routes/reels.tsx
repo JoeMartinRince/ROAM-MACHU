@@ -49,17 +49,26 @@ function Reel({ post }: { post: Post }) {
         playsInline
         className="absolute inset-0 size-full object-cover"
       />
-      <div className="absolute inset-0 bg-media-fade" />
-      <div className="absolute bottom-28 right-3">
-        <ActionStack post={post} size="lg" />
-      </div>
-      <div className="absolute bottom-28 left-4 right-20 space-y-2 text-on-media">
-        <div className="flex items-center gap-2">
-          <Avatar name={c?.name ?? post.creator} className="size-9 text-xs ring-2 ring-on-media" />
-          <p className="text-sm font-semibold">@{post.creator}</p>
+      <div className="pointer-events-none absolute inset-0 bg-media-fade" />
+      <div className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] flex items-end justify-between gap-3 px-4">
+        <div className="min-w-0 flex-1 space-y-2 text-on-media">
+          <div className="flex items-center gap-2.5">
+            <Avatar
+              name={c?.name ?? post.creator}
+              className="size-9 text-xs ring-2 ring-white/90 shadow-xs"
+            />
+            <p className="truncate text-sm font-semibold text-white drop-shadow-xs">
+              @{post.creator}
+            </p>
+          </div>
+          <p className="line-clamp-2 text-xs leading-relaxed text-white/95 drop-shadow-xs">
+            {post.caption}
+          </p>
+          <PlaceTag placeId={post.placeId} />
         </div>
-        <p className="text-sm">{post.caption}</p>
-        <PlaceTag placeId={post.placeId} />
+        <div className="shrink-0">
+          <ActionStack post={post} size="lg" />
+        </div>
       </div>
     </section>
   );
@@ -68,7 +77,7 @@ function Reel({ post }: { post: Post }) {
 function Reels() {
   const { reels } = useStore();
   return (
-    <div className="no-scrollbar -mb-28 h-dvh snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-y-contain">
+    <div className="no-scrollbar -mb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] h-dvh snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-y-contain">
       {reels.map((r) => (
         <Reel key={r.id} post={r} />
       ))}

@@ -77,9 +77,9 @@ function Create() {
   const field =
     "w-full rounded-2xl border border-input bg-muted px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring";
   return (
-    <div className="px-4 pb-4 pt-4">
-      <h1 className="text-2xl font-semibold">Share a roam</h1>
-      <label className="tap-scale relative mt-4 grid aspect-[4/5] cursor-pointer place-items-center overflow-hidden rounded-3xl border-2 border-dashed border-primary/40 bg-secondary transition-colors hover:border-primary/70">
+    <div className="px-4 pb-4 pt-[calc(env(safe-area-inset-top,0px)+1rem)]">
+      <h1 className="text-xl font-bold tracking-tight text-foreground">Share a roam</h1>
+      <label className="tap-scale relative mt-3 grid aspect-[4/5] cursor-pointer place-items-center overflow-hidden rounded-3xl border-2 border-dashed border-primary/40 bg-secondary transition-colors hover:border-primary/70">
         {preview ? (
           isVideo ? (
             <video
@@ -167,7 +167,7 @@ function Create() {
         type="button"
         onClick={submit}
         disabled={progress !== null}
-        className="tap-scale mt-4 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-float transition hover:bg-primary/90 disabled:opacity-60"
+        className="tap-scale mt-4 flex h-11 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-float transition hover:bg-primary/90 disabled:opacity-60"
       >
         Post
       </button>
