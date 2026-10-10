@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { ImagePlus, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { Camera, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { places } from "@/lib/data";
 import { addPost } from "@/lib/store";
@@ -34,6 +34,8 @@ function Create() {
   const [anon, setAnon] = useState("");
   const [progress, setProgress] = useState<number | null>(null);
   const [dragging, setDragging] = useState(false);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const isVideo = !!file?.type.startsWith("video");
 
   const pick = (f?: File) => {
@@ -77,13 +79,11 @@ function Create() {
   };
 
   const field =
-    "w-full rounded-2xl border border-input bg-muted px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring";
+    "w-full rounded-[16px] border border-input bg-muted px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring";
   return (
     <div className="px-4 pb-2 pt-[calc(var(--safe-top)+0.75rem)] lg:px-8 lg:py-10">
-      <div className="lg:mx-auto lg:max-w-[560px] lg:rounded-3xl lg:border lg:border-border lg:bg-card lg:p-7 lg:shadow-card">
-        <h1 className="text-lg font-bold tracking-tight text-foreground lg:text-2xl">
-          Share a roam
-        </h1>
+      <div className="lg:mx-auto lg:max-w-[560px] lg:rounded-[20px] lg:border lg:border-border lg:bg-card lg:p-7 lg:shadow-card">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Share a roam</h1>
         <label
           onDragOver={(e) => {
             e.preventDefault();
@@ -96,8 +96,8 @@ function Create() {
             pick(e.dataTransfer.files?.[0]);
           }}
           className={cn(
-            "tap-scale relative mt-2.5 grid aspect-[10/11] cursor-pointer place-items-center overflow-hidden rounded-3xl border-2 border-dashed bg-secondary transition-colors lg:mt-4 lg:aspect-[16/10]",
-            dragging ? "border-primary bg-primary/10" : "border-primary/40 hover:border-primary/70",
+            "relative mt-3 grid aspect-[4/3] cursor-pointer place-items-center overflow-hidden rounded-[20px] border border-dashed bg-muted/60 transition-colors lg:mt-4 lg:aspect-[16/10]",
+            dragging ? "border-primary bg-muted" : "border-border hover:border-foreground/30",
           )}
         >
           {preview ? (
@@ -118,15 +118,54 @@ function Create() {
               />
             )
           ) : (
-            <div className="px-4 text-center text-primary">
-              <ImagePlus className="mx-auto" size={36} />
-              <p className="mt-2 text-sm font-semibold">Tap or drag & drop photo or video</p>
-              <p className="mt-1 text-xs text-muted-foreground">Videos up to 20 MB</p>
+            <div className="flex flex-col items-center px-4 text-center">
+              <span className="grid size-12 place-items-center rounded-full border border-border bg-background text-foreground shadow-2xs">
+                <ImagePlus size={22} />
+              </span>
+              <p className="mt-2.5 text-base font-semibold text-foreground">Add a photo or video</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Tap to browse or drag & drop · Videos up to 20 MB
+              </p>
+              <div className="mt-4 flex items-center justify-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cameraInputRef.current?.click();
+                  }}
+                  className="tap-scale inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-medium text-foreground shadow-2xs transition hover:bg-muted"
+                >
+                  <Camera size={14} className="text-muted-foreground" />
+                  <span>Camera</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    galleryInputRef.current?.click();
+                  }}
+                  className="tap-scale inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-medium text-foreground shadow-2xs transition hover:bg-muted"
+                >
+                  <ImagePlus size={14} className="text-muted-foreground" />
+                  <span>Gallery</span>
+                </button>
+              </div>
             </div>
           )}
           <input
+            ref={galleryInputRef}
             type="file"
             accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => pick(e.target.files?.[0])}
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*,video/*"
+            capture="environment"
             className="hidden"
             onChange={(e) => pick(e.target.files?.[0])}
           />
@@ -146,7 +185,7 @@ function Create() {
           )}
         </label>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-3.5 space-y-3">
           <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
             <select
               value={placeId}
