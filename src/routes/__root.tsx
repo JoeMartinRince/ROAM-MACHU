@@ -20,7 +20,7 @@ import { Splash } from "@/components/Splash";
 import { BottomNav, DesktopSidebar } from "@/components/BottomNav";
 import { getResolvedTheme, syncThemeDom, useTheme } from "@/hooks/use-theme";
 
-const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#000000":"#FFFFFF");}catch(e){}})();`;
+const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#000000":"#FFFFFF");}catch(e){}try{if(sessionStorage.getItem("roam-splash-seen"))document.documentElement.setAttribute("data-splash-seen","1");}catch(e){}})();`;
 
 function NotFoundComponent() {
   return (
