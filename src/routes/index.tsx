@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
 
 function TripCirclesSkeleton() {
   return (
-    <div className="no-scrollbar -mx-4 mt-2 flex gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-3 lg:gap-4 lg:px-0">
+    <div className="no-scrollbar -mx-4 mt-2.5 flex gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-0 lg:gap-4 lg:px-0">
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5">
           <Skeleton className="size-14 rounded-full lg:size-16" />
@@ -88,15 +88,12 @@ function Home() {
           </button>
         </header>
 
-        <div className="mt-2.5 flex items-baseline justify-between lg:mt-0">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Discover</h1>
-          <span className="text-xs font-medium text-muted-foreground">Live roams</span>
-        </div>
+        <h1 className="sr-only">Roam Machu</h1>
 
         {!ready ? (
           <TripCirclesSkeleton />
         ) : (
-          <div className="no-scrollbar -mx-4 mt-2 flex items-start gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-3 lg:gap-4 lg:px-0">
+          <div className="no-scrollbar -mx-4 mt-2.5 flex items-start gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-0 lg:gap-4 lg:px-0">
             <Link
               to="/create"
               className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
