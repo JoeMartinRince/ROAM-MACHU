@@ -10,7 +10,7 @@ export function Splash() {
   }, []);
   if (!show) return null;
   return (
-    <div className="fixed inset-0 z-[2000] grid place-items-center bg-cream dark:bg-[#0E1730] animate-out fade-out delay-1000 duration-500 fill-mode-forwards">
+    <div className="fixed inset-0 z-[2000] grid place-items-center bg-cream dark:bg-[#000000] animate-out fade-out delay-1000 duration-500 fill-mode-forwards">
       <img
         src={logo}
         alt="Roam Machu"
