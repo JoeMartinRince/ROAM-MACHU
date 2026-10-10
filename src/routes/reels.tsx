@@ -71,26 +71,36 @@ function Reel({
           playsInline
           className="absolute inset-0 size-full object-cover"
         />
-        <div className="pointer-events-none absolute inset-0 bg-media-fade" />
-        <div className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] left-4 right-20 space-y-2 text-on-media lg:bottom-5 lg:left-5 lg:right-5">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/92 via-black/50 via-38% to-transparent"
+        />
+        <div className="absolute bottom-[var(--bottom-nav-clearance)] left-4 right-20 space-y-2 text-on-media lg:bottom-5 lg:left-5 lg:right-5">
           <div className="flex items-center gap-2.5">
             <Avatar
               name={c?.name ?? post.creator}
               className="size-9 text-xs ring-2 ring-white/90 shadow-xs"
             />
-            <p className="truncate text-sm font-semibold text-white drop-shadow-xs">
-              @{post.creator}
-            </p>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight text-white drop-shadow-xs">
+                {c?.name ?? post.creator}
+              </p>
+              <p className="truncate text-xs font-medium leading-tight text-white/80">
+                @{post.creator}
+              </p>
+            </div>
           </div>
           <p className="line-clamp-2 text-xs leading-relaxed text-white/95 drop-shadow-xs">
             {post.caption}
           </p>
-          <PlaceTag placeId={post.placeId} />
+          <div className="pt-0.5">
+            <PlaceTag placeId={post.placeId} />
+          </div>
         </div>
       </div>
 
-      {/* Action stack: overlay on mobile, to the right of the 9:16 player on desktop */}
-      <div className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] right-4 z-10 lg:static lg:self-end lg:pb-4">
+      {/* Action stack: overlay on mobile aligned with caption bottom, to the right of the 9:16 player on desktop */}
+      <div className="absolute bottom-[var(--bottom-nav-clearance)] right-3.5 z-10 lg:static lg:self-end lg:pb-4">
         <ActionStack post={post} size="lg" />
       </div>
     </section>
@@ -144,7 +154,7 @@ function Reels() {
     <div className="relative">
       <div
         ref={containerRef}
-        className="no-scrollbar -mb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] h-dvh snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-y-contain lg:mb-0"
+        className="no-scrollbar h-dvh snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-y-contain"
       >
         {reels.map((r, idx) => (
           <Reel key={r.id} post={r} index={idx} onActive={setActiveIndex} />

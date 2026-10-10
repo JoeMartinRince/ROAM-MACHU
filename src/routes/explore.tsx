@@ -31,19 +31,19 @@ export const Route = createFileRoute("/explore")({
 
 function PlacesListSkeleton() {
   return (
-    <div className="mt-3 space-y-2">
+    <div className="mt-2 space-y-2">
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card p-2 shadow-card"
+          className="flex items-center gap-2.5 rounded-2xl border border-border/50 bg-card p-2 shadow-card"
         >
-          <Skeleton className="h-4 w-6 rounded-full" />
-          <Skeleton className="size-14 shrink-0 rounded-xl" />
-          <div className="min-w-0 flex-1 space-y-2">
-            <Skeleton className="h-4 w-32 rounded-full" />
+          <Skeleton className="h-4 w-5 rounded-full" />
+          <Skeleton className="size-12 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <Skeleton className="h-3.5 w-32 rounded-full" />
             <Skeleton className="h-3 w-20 rounded-full" />
           </div>
-          <Skeleton className="mr-2 h-7 w-12 rounded-full" />
+          <Skeleton className="mr-1 h-6 w-11 rounded-full" />
         </div>
       ))}
     </div>
@@ -81,14 +81,14 @@ function Explore() {
   const activePlaceId = hoveredId ?? selectedId;
 
   return (
-    <div className="px-4 pt-[calc(env(safe-area-inset-top,0px)+1rem)] lg:flex lg:h-dvh lg:overflow-hidden lg:px-0 lg:pt-0">
+    <div className="px-4 pt-[calc(var(--safe-top)+0.75rem)] lg:flex lg:h-dvh lg:overflow-hidden lg:px-0 lg:pt-0">
       {/* Left panel on desktop (400px), full column on mobile */}
       <div className="lg:flex lg:h-full lg:w-[400px] lg:shrink-0 lg:flex-col lg:border-r lg:border-border lg:bg-card/60">
         <div className="lg:border-b lg:border-border/70 lg:p-5">
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Explore</h1>
-          <div className="mt-3 flex gap-2">
-            <label className="flex h-11 flex-1 items-center gap-2 rounded-full border border-input bg-muted px-4 focus-within:ring-2 focus-within:ring-ring">
-              <Search size={18} className="shrink-0 text-muted-foreground" />
+          <h1 className="text-lg font-bold tracking-tight text-foreground lg:text-xl">Explore</h1>
+          <div className="mt-2.5 flex gap-2 lg:mt-3">
+            <label className="flex h-10 flex-1 items-center gap-2 rounded-full border border-input bg-muted px-3.5 focus-within:ring-2 focus-within:ring-ring lg:h-11 lg:px-4">
+              <Search size={17} className="shrink-0 text-muted-foreground" />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -111,16 +111,16 @@ function Explore() {
               type="button"
               aria-label="Filters"
               onClick={() => toast("Sorted by highest Roam Score")}
-              className="tap-scale grid size-11 shrink-0 place-items-center rounded-full border border-border bg-navy text-on-media shadow-card hover:opacity-90"
+              className="tap-scale grid size-10 shrink-0 place-items-center rounded-full border border-border bg-navy text-on-media shadow-card hover:opacity-90 lg:size-11"
             >
-              <SlidersHorizontal size={18} />
+              <SlidersHorizontal size={17} />
             </button>
           </div>
 
           <div
             role="tablist"
             aria-label="Explore view mode"
-            className="mt-4 grid grid-cols-2 rounded-full border border-border/60 bg-muted p-1 text-sm font-medium lg:hidden"
+            className="mt-2.5 grid grid-cols-2 rounded-full border border-border/60 bg-muted p-1 text-xs font-medium sm:text-sm lg:hidden"
           >
             {(["map", "list"] as const).map((m) => (
               <button
@@ -130,7 +130,7 @@ function Explore() {
                 aria-selected={mode === m}
                 onClick={() => setMode(m)}
                 className={cn(
-                  "tap-scale rounded-full py-2 capitalize transition",
+                  "tap-scale rounded-full py-1.5 capitalize transition",
                   mode === m
                     ? "bg-card font-semibold text-primary shadow-card"
                     : "text-muted-foreground hover:text-foreground",
@@ -146,8 +146,13 @@ function Explore() {
         <div className="lg:no-scrollbar lg:flex-1 lg:overflow-y-auto lg:p-5">
           {mode === "list" && (
             <div className="lg:hidden">
-              <h2 className="mt-6 font-semibold">Live trips</h2>
-              <div className="no-scrollbar -mx-4 mt-3 flex gap-3 overflow-x-auto px-4 pb-1">
+              <div className="mt-3.5 flex items-center justify-between">
+                <h2 className="text-sm font-bold tracking-tight text-foreground">Live trips</h2>
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {live.length} active now
+                </span>
+              </div>
+              <div className="no-scrollbar -mx-4 mt-2 flex gap-2.5 overflow-x-auto px-4 pb-1">
                 {live.map((c, i) => {
                   const p = allPlaces[[17, 0, 16][i] ?? i]!;
                   return (
@@ -155,7 +160,7 @@ function Explore() {
                       key={c.handle}
                       to="/place/$id"
                       params={{ id: p.id }}
-                      className="tap-scale relative h-56 w-36 shrink-0 overflow-hidden rounded-3xl bg-card shadow-card ring-1 ring-border/40"
+                      className="tap-scale relative h-38 w-[156px] shrink-0 overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/50"
                     >
                       <img
                         src={p.image}
@@ -163,13 +168,20 @@ function Explore() {
                         loading="lazy"
                         className="absolute inset-0 size-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-media-fade" />
-                      <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground shadow-sm">
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"
+                      />
+                      <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 text-[10px] leading-tight font-bold tracking-wide text-primary-foreground uppercase shadow-xs">
                         LIVE
                       </span>
-                      <div className="absolute bottom-3 left-3 right-3 text-on-media">
-                        <p className="truncate text-sm font-semibold">{p.name}</p>
-                        <p className="truncate text-xs opacity-85">@{c.handle}</p>
+                      <div className="absolute bottom-2.5 left-2.5 right-2.5 text-on-media">
+                        <p className="line-clamp-2 text-xs font-semibold leading-snug text-white drop-shadow-xs">
+                          {p.name}
+                        </p>
+                        <p className="mt-0.5 truncate text-[11px] font-medium text-white/85">
+                          @{c.handle}
+                        </p>
                       </div>
                     </Link>
                   );
@@ -179,13 +191,13 @@ function Explore() {
           )}
 
           <div className={cn(mode === "map" && "hidden lg:block")}>
-            <h2 className="mt-6 flex items-center gap-1.5 font-semibold lg:mt-0">
-              <Flame size={18} className="text-primary" /> Trending places
+            <h2 className="mt-3.5 flex items-center gap-1.5 text-sm font-bold tracking-tight text-foreground lg:mt-0">
+              <Flame size={16} className="text-primary" /> Trending places
             </h2>
             {!ready ? (
               <PlacesListSkeleton />
             ) : filtered.length === 0 ? (
-              <div className="mt-4 flex flex-col items-center justify-center rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-card">
+              <div className="mt-3 flex flex-col items-center justify-center rounded-3xl border border-border/60 bg-card px-6 py-10 text-center shadow-card">
                 <span className="grid size-12 place-items-center rounded-full bg-secondary text-primary">
                   <Compass size={24} />
                 </span>
@@ -202,7 +214,7 @@ function Explore() {
                 </button>
               </div>
             ) : (
-              <ol className="mt-3 space-y-2">
+              <ol className="mt-2 space-y-2">
                 {filtered.map((p, i) => {
                   const isHighlighted = activePlaceId === p.id;
                   return (
@@ -218,26 +230,28 @@ function Explore() {
                         to="/place/$id"
                         params={{ id: p.id }}
                         className={cn(
-                          "tap-scale flex items-center gap-3 rounded-2xl border bg-card p-2 shadow-card transition-colors",
+                          "tap-scale flex items-center gap-2.5 rounded-2xl border bg-card p-2 shadow-card transition-colors",
                           isHighlighted
                             ? "border-primary bg-secondary/40 ring-1 ring-primary/40"
-                            : "border-border/50 hover:border-primary/40",
+                            : "border-border/60 hover:border-primary/40",
                         )}
                       >
-                        <span className="w-6 text-center text-sm font-bold text-muted-foreground tabular-nums">
+                        <span className="w-5 shrink-0 text-center text-xs font-bold text-muted-foreground tabular-nums">
                           {i + 1}
                         </span>
                         <img
                           src={p.image}
-                          alt=""
+                          alt={p.name}
                           loading="lazy"
-                          className="size-14 shrink-0 rounded-xl object-cover"
+                          className="size-12 shrink-0 rounded-xl object-cover"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold">{p.name}</p>
+                          <p className="line-clamp-1 text-sm font-semibold leading-snug text-foreground">
+                            {p.name}
+                          </p>
                           <p className="truncate text-xs text-muted-foreground">{p.region}</p>
                         </div>
-                        <span className="mr-2 rounded-full bg-accent px-3 py-1 text-sm font-semibold text-teal tabular-nums">
+                        <span className="mr-1 shrink-0 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-teal tabular-nums">
                           {p.score}
                         </span>
                       </Link>
@@ -254,7 +268,7 @@ function Explore() {
       <div
         className={cn(
           mode === "map"
-            ? "mt-4 h-[60vh] overflow-hidden rounded-3xl border border-border/60 shadow-card"
+            ? "mt-3 h-[calc(100dvh-var(--bottom-nav-clearance)-9.5rem)] min-h-[320px] overflow-hidden rounded-3xl border border-border/60 shadow-card"
             : "hidden",
           "lg:mt-0 lg:block lg:h-full lg:flex-1 lg:rounded-none lg:border-0 lg:shadow-none",
         )}
