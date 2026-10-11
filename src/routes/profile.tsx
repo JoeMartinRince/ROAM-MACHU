@@ -31,7 +31,7 @@ import {
 import { Avatar } from "@/components/Avatar";
 import { NotificationBellButton } from "@/components/DemoModals";
 import { processAvatarFile } from "@/hooks/use-profile-avatar";
-import { FundDetailSheet, TripFundCard } from "@/components/TripFundCard";
+import { FuelTripSheet, FundDetailSheet, TripFundCard } from "@/components/TripFundCard";
 import { cn } from "@/lib/utils";
 
 const PRESET_COVERS = [
@@ -65,6 +65,7 @@ function OwnProfile() {
   const [createFundOpen, setCreateFundOpen] = useState(false);
   const [editingFund, setEditingFund] = useState<TripFund | null>(null);
   const [selectedFund, setSelectedFund] = useState<TripFund | null>(null);
+  const [fuelingFund, setFuelingFund] = useState<TripFund | null>(null);
   const [uploading, setUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -307,8 +308,9 @@ function OwnProfile() {
               <div key={f.id} className="w-[280px] shrink-0 lg:w-auto relative">
                 <TripFundCard
                   fund={f}
-                  canFuel={false}
+                  canFuel={true}
                   onOpenDetail={(fund) => setSelectedFund(fund)}
+                  onFuelClick={(fund) => setFuelingFund(fund)}
                 />
                 {/* Manage controls for owner */}
                 <div className="mt-2 flex items-center justify-between px-1 text-xs">
@@ -492,10 +494,14 @@ function OwnProfile() {
       {selectedFund && (
         <FundDetailSheet
           fund={selectedFund}
-          canFuel={false}
+          canFuel={true}
           onClose={() => setSelectedFund(null)}
+          onFuelClick={(fund) => setFuelingFund(fund)}
         />
       )}
+
+      {/* Fuel / Razorpay Demo Sheet */}
+      {fuelingFund && <FuelTripSheet fund={fuelingFund} onClose={() => setFuelingFund(null)} />}
     </div>
   );
 }

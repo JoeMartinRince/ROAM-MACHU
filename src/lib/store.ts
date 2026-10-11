@@ -846,9 +846,6 @@ export function addContribution(
 ): { contribution: Contribution; fund: TripFund } {
   const targetFund = state.funds.find((f) => f.id === fundId);
   if (!targetFund) throw new Error("Fund not found");
-  if (targetFund.ownerHandle.toLowerCase() === state.currentUser.handle.toLowerCase()) {
-    throw new Error("You cannot fund your own trip");
-  }
 
   const activeId = state.activeAccountId;
   const currentBalance = getWalletBalance(activeId);

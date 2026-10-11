@@ -9,6 +9,7 @@ import { Avatar } from "@/components/Avatar";
 import { NotificationBellButton } from "@/components/DemoModals";
 import { PostCard, PostCardSkeleton } from "@/components/PostCard";
 import { StoryBar } from "@/components/StoryBarAndModals";
+import { FuelTripSheet } from "@/components/TripFundCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/")({
@@ -48,6 +49,7 @@ function Home() {
   const s = useStore();
   const { posts, creators } = s;
   const [ready, setReady] = useState(false);
+  const [fuelOpen, setFuelOpen] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 160);
@@ -56,9 +58,10 @@ function Home() {
 
   const topPlaces = useMemo(() => rankedPlaces(s).slice(0, 5), [s]);
   const liveCreators = useMemo(() => creators.filter((c) => c.live), [creators]);
-  const raised = 18400;
-  const goal = 30000;
-  const pct = Math.round((raised / goal) * 100);
+  const featuredFund = s.funds.find((f) => f.id === "fund-chai-1") ?? s.funds[0]!;
+  const raised = featuredFund?.raised ?? 28500;
+  const goal = featuredFund?.goal ?? 45000;
+  const pct = Math.min(100, Math.round((raised / goal) * 100));
 
   return (
     <div className="px-4 lg:mx-auto lg:flex lg:max-w-[1060px] lg:items-start lg:justify-center lg:gap-8 lg:px-8 lg:py-8">
@@ -224,14 +227,18 @@ function Home() {
 
           <button
             type="button"
-            onClick={() => toast.success("Thanks for fueling the roam! ⛽")}
+            onClick={() => setFuelOpen(true)}
             className="tap-scale mt-3.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 font-display text-xs font-normal text-primary-foreground shadow-float transition-opacity hover:bg-primary/90"
           >
             <Fuel size={15} />
-            <span>Fuel the Roam</span>
+            <span>Fuel the Roam · Razorpay Demo</span>
           </button>
         </section>
       </aside>
+
+      {fuelOpen && featuredFund && (
+        <FuelTripSheet fund={featuredFund} onClose={() => setFuelOpen(false)} />
+      )}
     </div>
   );
 }
