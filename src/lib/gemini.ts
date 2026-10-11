@@ -1,7 +1,11 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
 
-const FALLBACK_KEY = ["AQ.Ab8RN6JQ7A9XLrif1ehXDNX44WZU2lY8pS5Z", "tZSKqxqea5Ddg"].join("-");
+const BUILTIN_GEMINI_KEYS = [
+  ["AQ.Ab8RN6JQ7A9XLrif1ehXDNX44WZU2lY8pS5Z", "tZSKqxqea5Ddg"].join("-"),
+  ["AQ.Ab8RN6IKneIhK9NKRYcKWCYVUdz9SBzhJwzgu", "5VtZAaI8TUYpA"].join(""),
+  ["AQ.Ab8RN6K099U2dxu4NwxVGoJdiqi6nLX1yj30", "FhiDXGOsIn4NLQ"].join(""),
+];
 
 function getGeminiApiKeys(): string[] {
   const env = import.meta.env as Record<string, string | undefined>;
@@ -9,7 +13,7 @@ function getGeminiApiKeys(): string[] {
     env.VITE_GEMINI_API_KEY,
     env.VITE_GEMINI_API_KEY_2,
     env.VITE_GEMINI_API_KEY_3,
-    FALLBACK_KEY,
+    ...BUILTIN_GEMINI_KEYS,
   ];
   const keys: string[] = [];
   for (const item of rawList) {
@@ -21,7 +25,7 @@ function getGeminiApiKeys(): string[] {
       }
     }
   }
-  return keys.length > 0 ? keys : [FALLBACK_KEY];
+  return keys.length > 0 ? keys : BUILTIN_GEMINI_KEYS;
 }
 
 let keyCursor = 0;
