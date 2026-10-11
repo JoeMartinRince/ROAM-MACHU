@@ -395,3 +395,8 @@ export function _reset() {
 }
 
 export const getState = () => state;
+
+/** Opens the comments modal for a post (stub — wire up a real modal when ready). */
+export function openCommentsModal(_postId: string) {
+  // TODO: set modal state once a CommentsModal component exists
+}

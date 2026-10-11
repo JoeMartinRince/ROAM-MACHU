@@ -324,6 +324,59 @@ export function FundDetailSheet({
   );
 }
 
+/** ------------------------------------------------------------------ *
+ *  Razorpay checkout helpers
+ * ------------------------------------------------------------------ */
+
+/** Dynamically load the Razorpay Checkout script once */
+function loadRazorpayScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") return resolve();
+    if ((window as Window & { Razorpay?: unknown }).Razorpay) return resolve();
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
+    document.head.appendChild(script);
+  });
+}
+
+/** Open the Razorpay test-mode checkout popup */
+function openRazorpayCheckout(opts: {
+  key: string;
+  amount: number; // in ₹ (we convert to paise)
+  name: string;
+  fundTitle: string;
+  onSuccess: (paymentId: string) => void;
+  onDismiss: () => void;
+}) {
+  const rzp = new (
+    window as Window & {
+      Razorpay: new (options: Record<string, unknown>) => { open(): void };
+    }
+  ).Razorpay({
+    key: opts.key,
+    amount: opts.amount * 100, // paise
+    currency: "INR",
+    name: "Roam Machu",
+    description: `Fuel: ${opts.fundTitle}`,
+    image: "/logo-splash.png",
+    prefill: {
+      name: opts.name,
+      contact: "",
+      email: "",
+    },
+    theme: { color: "#00b3a4" },
+    modal: {
+      ondismiss: opts.onDismiss,
+    },
+    handler: (response: { razorpay_payment_id: string }) => {
+      opts.onSuccess(response.razorpay_payment_id);
+    },
+  });
+  rzp.open();
+}
+
 /** Fuel Payment / Contribute Sheet */
 export function FuelTripSheet({
   fund,
@@ -344,26 +397,55 @@ export function FuelTripSheet({
   const [processing, setProcessing] = useState(false);
   const [successResult, setSuccessResult] = useState<{ amount: number } | null>(null);
 
+  // Razorpay key — read from env first; user can paste their own if blank
+  const envKey = import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined;
+  const [rzpKey, setRzpKey] = useState<string>(envKey ?? "");
+  const keyMissing = !rzpKey.trim();
+
   const amount = customAmount ? parseInt(customAmount, 10) || 0 : selectedAmount;
 
-  const handleConfirm = () => {
+  const handlePay = async () => {
     if (amount < 10) {
       toast.error("Minimum contribution is ₹10");
       return;
     }
+    if (keyMissing) {
+      toast.error("Please enter your Razorpay test key first");
+      return;
+    }
+
     setProcessing(true);
-    setTimeout(() => {
-      try {
-        addContribution(fund.id, amount, name, note);
+
+    try {
+      await loadRazorpayScript();
+    } catch {
+      toast.error("Could not load Razorpay. Check your connection.");
+      setProcessing(false);
+      return;
+    }
+
+    openRazorpayCheckout({
+      key: rzpKey.trim(),
+      amount,
+      name,
+      fundTitle: fund.title,
+      onSuccess: (paymentId) => {
+        try {
+          addContribution(fund.id, amount, name, note);
+          setSuccessResult({ amount });
+          toast.success(`Payment ₹${amount} successful 🎉 (${paymentId.slice(0, 14)}…)`);
+          onSuccess?.();
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Could not record contribution");
+        } finally {
+          setProcessing(false);
+        }
+      },
+      onDismiss: () => {
         setProcessing(false);
-        setSuccessResult({ amount });
-        toast.success(`You fueled ₹${amount} 🎉`);
-        onSuccess?.();
-      } catch (err) {
-        setProcessing(false);
-        toast.error(err instanceof Error ? err.message : "Contribution failed");
-      }
-    }, 850);
+        toast("Payment cancelled");
+      },
+    });
   };
 
   return (
@@ -497,25 +579,45 @@ export function FuelTripSheet({
               </div>
             </div>
 
-            {/* Confirm button */}
-            <div className="mt-6">
+            {/* Razorpay key input — shown only when env var is absent */}
+            {keyMissing && (
+              <div className="mt-3 rounded-xl border border-amber-400/40 bg-amber-400/10 p-3">
+                <p className="text-[11px] font-mono text-amber-500 dark:text-amber-300 mb-1.5">
+                  ⚠️ No Razorpay test key found. Paste your{" "}
+                  <span className="font-semibold">rzp_test_…</span> key below or add{" "}
+                  <code className="bg-amber-400/20 px-1 rounded">VITE_RAZORPAY_KEY_ID</code> to{" "}
+                  <code className="bg-amber-400/20 px-1 rounded">.env</code>.
+                </p>
+                <input
+                  type="text"
+                  placeholder="rzp_test_XXXXXXXXXXXXXXXXXX"
+                  value={rzpKey}
+                  onChange={(e) => setRzpKey(e.target.value)}
+                  spellCheck={false}
+                  className="w-full rounded-lg border border-amber-400/50 bg-card px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-teal focus:ring-2 focus:ring-teal/30"
+                />
+              </div>
+            )}
+
+            {/* Pay button */}
+            <div className="mt-5">
               <button
                 type="button"
-                disabled={processing || amount < 10}
-                onClick={handleConfirm}
+                disabled={processing || amount < 10 || keyMissing}
+                onClick={handlePay}
                 className="tap-scale flex h-11 w-full items-center justify-center gap-2 rounded-full bg-teal font-display text-sm font-normal text-white shadow-float transition hover:brightness-105 disabled:opacity-50"
               >
                 {processing ? (
                   <span className="inline-flex items-center gap-2">
                     <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Processing payment…</span>
+                    <span>Opening Razorpay…</span>
                   </span>
                 ) : (
-                  <span>Fuel ₹{amount}</span>
+                  <span>Pay ₹{amount} via Razorpay</span>
                 )}
               </button>
               <p className="mt-2 text-center text-[11px] text-muted-foreground font-mono">
-                🔒 Mock instant payment simulation
+                🔒 Razorpay test mode · no real money is charged
               </p>
             </div>
           </>
