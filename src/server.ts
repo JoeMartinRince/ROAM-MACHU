@@ -2,7 +2,6 @@ import "./lib/error-capture";
 
 import dns from "node:dns";
 import { neon } from "@neondatabase/serverless";
-import { createAdminClient } from "@supabase/server/core";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
@@ -14,24 +13,6 @@ const DATABASE_URL =
   `postgresql://neondb_owner:${NEON_PASS}@ep-raspy-river-b321stew-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require`;
 
 const sql = neon(DATABASE_URL);
-
-const SUPABASE_ENV = {
-  url: process.env.SUPABASE_URL || "https://svefularllwupephhcrf.supabase.co",
-  publishableKeys: {
-    default:
-      process.env.SUPABASE_PUBLISHABLE_KEY ||
-      ["sb", "publishable", "CWWajeSsi6OYzpcPKXA8KQ_KFSRImQM"].join("_"),
-  },
-  secretKeys: {
-    default:
-      process.env.SUPABASE_SECRET_KEY ||
-      ["sb", "secret", "Wf28yGvxZRJmE-JxW1rM1Q_6RRCMCUQ"].join("_"),
-  },
-};
-
-function getSupabaseAdmin() {
-  return createAdminClient({ env: SUPABASE_ENV });
-}
 
 type DbRow = {
   id: string;
@@ -434,28 +415,13 @@ async function handleDatabaseApi(request: Request, url: URL): Promise<Response> 
     }
   }
 
-  // 7. POST /api/supabase/upload (Upload media to Supabase Storage + Neon fallback)
+  // 7. POST /api/supabase/upload (Store media directly in Neon PostgreSQL media_uploads table)
   if (path === "/api/supabase/upload" && request.method === "POST") {
     try {
       const rawName = decodeURIComponent(request.headers.get("x-file-name") || "file.bin");
       const contentType = request.headers.get("content-type") || "application/octet-stream";
-      const safeName = `uploads/${Date.now()}-${rawName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const buf = await request.arrayBuffer();
 
-      const supabaseAdmin = getSupabaseAdmin();
-      const { error: upErr } = await supabaseAdmin.storage
-        .from("roam-media")
-        .upload(safeName, buf, {
-          contentType,
-          upsert: true,
-        });
-
-      if (!upErr) {
-        const { data: pub } = supabaseAdmin.storage.from("roam-media").getPublicUrl(safeName);
-        return Response.json({ ok: true, url: pub.publicUrl });
-      }
-
-      // Fallback: store directly in Neon PostgreSQL media_uploads table as data URL
       const base64 = Buffer.from(buf).toString("base64");
       const dataUrl = `data:${contentType};base64,${base64}`;
       const mediaId = `m_${Date.now()}`;
