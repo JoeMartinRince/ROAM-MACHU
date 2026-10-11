@@ -106,14 +106,11 @@ function PublicProfilePage() {
       : creatorPosts;
   const fundedCount = useMemo(() => funds.filter((f) => f.status === "funded").length, [funds]);
 
-  const followerCount = (creator?.followers ?? 1200) + (following ? 1 : 0);
+  const followerCount = creator?.followers ?? 1200;
 
   const handleFuelMainClick = () => {
-    if (activeFunds.length === 1) {
+    if (activeFunds.length > 0) {
       setFuelSheetFund(activeFunds[0]);
-    } else if (activeFunds.length > 1) {
-      fundsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      toast("Select a trip fund below to fuel! ⛽");
     }
   };
 

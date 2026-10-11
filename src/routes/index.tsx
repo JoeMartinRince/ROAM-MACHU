@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Bell, Compass, Flame, Fuel, Plus, Radio } from "lucide-react";
-import { toast } from "sonner";
+import { Compass, Flame, Fuel, Plus, Radio } from "lucide-react";
 import logo from "@/assets/logo-header.png";
 import logoDark from "@/assets/logo-dark.png";
-import { creators, formatCount, places as allPlaces } from "@/lib/data";
+import { formatCount, places as allPlaces } from "@/lib/data";
 import { rankedPlaces, useStore } from "@/lib/store";
 import { Avatar } from "@/components/Avatar";
+import { NotificationBellButton } from "@/components/DemoModals";
 import { PostCard, PostCardSkeleton } from "@/components/PostCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -45,7 +45,7 @@ function TripCirclesSkeleton() {
 
 function Home() {
   const s = useStore();
-  const { posts } = s;
+  const { posts, creators } = s;
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ function Home() {
   }, []);
 
   const topPlaces = useMemo(() => rankedPlaces(s).slice(0, 5), [s]);
-  const liveCreators = useMemo(() => creators.filter((c) => c.live), []);
+  const liveCreators = useMemo(() => creators.filter((c) => c.live), [creators]);
   const raised = 18400;
   const goal = 30000;
   const pct = Math.round((raised / goal) * 100);
@@ -77,15 +77,7 @@ function Home() {
               className="hidden h-7.5 w-auto object-contain dark:block"
             />
           </Link>
-          <button
-            type="button"
-            aria-label="Notifications"
-            onClick={() => toast("You're all caught up on new roams!")}
-            className="tap-scale relative grid size-9 shrink-0 place-items-center rounded-full border border-border/80 bg-muted/80 text-foreground transition-colors hover:bg-muted"
-          >
-            <Bell size={17} />
-            <span className="absolute right-2 top-2 size-2 rounded-full bg-primary ring-2 ring-background" />
-          </button>
+          <NotificationBellButton />
         </header>
 
         <h1 className="sr-only">Roam Machu</h1>

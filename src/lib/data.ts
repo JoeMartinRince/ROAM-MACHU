@@ -35,6 +35,7 @@ export type User = {
   bio: string;
   avatar: string | null;
   cover: string;
+  isGuest?: boolean;
 };
 
 export type TripFund = {
@@ -54,6 +55,9 @@ export type TripFund = {
 export type Contribution = {
   id: string;
   fundId: string;
+  contributorId?: string;
+  contributorHandle?: string;
+  avatar?: string | null;
   name: string;
   amount: number;
   note?: string;
@@ -261,30 +265,30 @@ export const creators: Creator[] = [
     live: true,
   },
   {
-    handle: "backpackbinu",
-    name: "Binu Thomas",
-    bio: "Heritage architecture, ancient stone temples & local food explorer.",
-    cover: temple,
-    followers: 19200,
-  },
-  {
-    handle: "meera.maps",
-    name: "Meera K",
+    handle: "monsoon.meera",
+    name: "Meera Menon",
     bio: "Cartographer by day, cliff-sunset watcher by evening. Living out of a 40L rucksack.",
     cover: beach,
     followers: 34100,
   },
   {
-    handle: "trekkingtess",
-    name: "Tess Mathew",
+    handle: "arjun.wanders",
+    name: "Arjun Das",
+    bio: "Heritage architecture, ancient stone temples & local food explorer.",
+    cover: temple,
+    followers: 19200,
+  },
+  {
+    handle: "fathima.fly",
+    name: "Fathima Rasheed",
     bio: "High altitude passes, cold desert trails & Himalayan summits 🏔️",
     cover: trek,
     followers: 52000,
     live: true,
   },
   {
-    handle: "foodiefaiz",
-    name: "Faiz Ali",
+    handle: "jerin.on.road",
+    name: "Jerin Thomas",
     bio: "Hunting midnight parottas, Malabar biryanis and coastal street eats 🌶️",
     cover: food,
     followers: 41800,
@@ -302,24 +306,30 @@ const raw: [string, string, string, string, number][] = [
     12400,
   ],
   ["roamwithrahul", "munnar", "Tea, mist and zero network. Perfect Sunday.", hills, 9800],
-  ["meera.maps", "varkala", "Cliff cafés at sunset hit different 🌅", beach, 15100],
-  ["foodiefaiz", "kochi", "Parotta + beef fry at 11pm, Fort Kochi style 🔥", food, 8700],
+  ["monsoon.meera", "varkala", "Cliff cafés at sunset hit different 🌅", beach, 15100],
+  ["jerin.on.road", "kochi", "Parotta + beef fry at 11pm, Fort Kochi style 🔥", food, 8700],
   [
-    "trekkingtess",
+    "fathima.fly",
     "ladakh",
     "4,800m and still climbing. Legs said no, heart said yes.",
     trek,
     21000,
   ],
-  ["backpackbinu", "athirappilly", "The Niagara of India is LOUD. Go in monsoon.", waterfall, 7600],
-  ["meera.maps", "jaipur", "Pink city sunrise before the crowds 🩷", fort, 11200],
+  [
+    "arjun.wanders",
+    "athirappilly",
+    "The Niagara of India is LOUD. Go in monsoon.",
+    waterfall,
+    7600,
+  ],
+  ["monsoon.meera", "jaipur", "Pink city sunrise before the crowds 🩷", fort, 11200],
   ["chai.nomad", "hampi", "Boulders, ruins and the best sunset point in the south.", temple, 6400],
   ["roamwithrahul", "kumarakom", "Slow canoe through the village canals.", backwaters, 5300],
-  ["foodiefaiz", "goa", "Fish thali under a palm tree. That's it. That's the post.", food, 9100],
-  ["trekkingtess", "manali", "Hampta Pass day 2. Snow everywhere.", trek, 13800],
-  ["backpackbinu", "madurai", "Every inch of this gopuram tells a story.", temple, 4900],
+  ["jerin.on.road", "goa", "Fish thali under a palm tree. That's it. That's the post.", food, 9100],
+  ["fathima.fly", "manali", "Hampta Pass day 2. Snow everywhere.", trek, 13800],
+  ["arjun.wanders", "madurai", "Every inch of this gopuram tells a story.", temple, 4900],
   ["chai.nomad", "wayanad", "Chembra peak heart lake trek ✅", hills, 6800],
-  ["meera.maps", "kovalam", "Lighthouse beach, warm water, no plans.", beach, 5700],
+  ["monsoon.meera", "kovalam", "Lighthouse beach, warm water, no plans.", beach, 5700],
   [
     "roamwithrahul",
     "thekkady",
@@ -343,10 +353,10 @@ export const seedPosts: Post[] = raw.map(([creator, placeId, caption, image, up]
 }));
 
 export const seedReels: Post[] = [
-  ["ForBiggerEscapes.mp4", "trekkingtess", "ladakh", "Road trip energy only 🏍️", backwaters],
+  ["ForBiggerEscapes.mp4", "fathima.fly", "ladakh", "Road trip energy only 🏍️", backwaters],
   ["ForBiggerJoyrides.mp4", "roamwithrahul", "munnar", "Hairpin bends to the clouds", hills],
   ["ForBiggerFun.mp4", "chai.nomad", "varkala", "Golden hour, every hour", beach],
-  ["ForBiggerMeltdowns.mp4", "foodiefaiz", "kochi", "Night food crawl in Kochi", food],
+  ["ForBiggerMeltdowns.mp4", "jerin.on.road", "kochi", "Night food crawl in Kochi", food],
 ].map(([v, creator, placeId, caption, image], i) => ({
   id: `r${i + 1}`,
   creator,
@@ -452,10 +462,10 @@ export const seedTripFunds: TripFund[] = [
     createdAt: new Date(Date.now() - 40 * 86400000).toISOString(),
   },
 
-  // Tess Mathew (@trekkingtess)
+  // Fathima Rasheed (@fathima.fly)
   {
-    id: "fund-tess-1",
-    ownerHandle: "trekkingtess",
+    id: "fund-fathima-1",
+    ownerHandle: "fathima.fly",
     title: "Hampta Pass Snow Trek Film",
     placeId: "manali",
     goal: 25000,
@@ -468,10 +478,10 @@ export const seedTripFunds: TripFund[] = [
     createdAt: new Date(Date.now() - 12 * 86400000).toISOString(),
   },
 
-  // Binu Thomas (@backpackbinu)
+  // Arjun Das (@arjun.wanders)
   {
-    id: "fund-binu-1",
-    ownerHandle: "backpackbinu",
+    id: "fund-arjun-1",
+    ownerHandle: "arjun.wanders",
     title: "Lost Temples of Hampi Photo Book",
     placeId: "hampi",
     goal: 15000,
@@ -490,7 +500,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-1",
     fundId: "fund-anu-1",
-    name: "Arjun Pillai",
+    contributorId: "arjun.wanders",
+    contributorHandle: "arjun.wanders",
+    name: "Arjun Das",
     amount: 1000,
     note: "Bring back those mountain sunset frames! 🏔️",
     createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
@@ -498,7 +510,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-2",
     fundId: "fund-anu-1",
-    name: "Devika Menon",
+    contributorId: "monsoon.meera",
+    contributorHandle: "monsoon.meera",
+    name: "Meera Menon",
     amount: 500,
     note: "Fueling your Spiti journey, safe travels Anu!",
     createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
@@ -506,7 +520,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-3",
     fundId: "fund-anu-1",
-    name: "Kiran R",
+    contributorId: "jerin.on.road",
+    contributorHandle: "jerin.on.road",
+    name: "Jerin Thomas",
     amount: 500,
     note: "Can't wait to see the monastery reels ✨",
     createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
@@ -522,7 +538,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-5",
     fundId: "fund-anu-1",
-    name: "Maya George",
+    contributorId: "fathima.fly",
+    contributorHandle: "fathima.fly",
+    name: "Fathima Rasheed",
     amount: 2000,
     note: "Keep inspiring us roamer!",
     createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
@@ -532,7 +550,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-6",
     fundId: "fund-anu-2",
-    name: "Siddharth",
+    contributorId: "roamwithrahul",
+    contributorHandle: "roamwithrahul",
+    name: "Rahul Nair",
     amount: 1000,
     note: "Tea country rocks! 🍃",
     createdAt: new Date(Date.now() - 32 * 86400000).toISOString(),
@@ -540,7 +560,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-7",
     fundId: "fund-anu-2",
-    name: "Lakshmi Nair",
+    contributorId: "monsoon.meera",
+    contributorHandle: "monsoon.meera",
+    name: "Meera Menon",
     amount: 500,
     note: "Enjoy the misty trails!",
     createdAt: new Date(Date.now() - 33 * 86400000).toISOString(),
@@ -550,7 +572,9 @@ export const seedContributions: Contribution[] = [
   {
     id: "c-8",
     fundId: "fund-anu-3",
-    name: "Rohan V",
+    contributorId: "jerin.on.road",
+    contributorHandle: "jerin.on.road",
+    name: "Jerin Thomas",
     amount: 500,
     note: "Varkala cliff sunsets are pure magic 🌅",
     createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
@@ -562,5 +586,83 @@ export const seedContributions: Contribution[] = [
     amount: 100,
     note: "Have a great trip!",
     createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+  },
+];
+
+export type DemoAccount = {
+  id: string;
+  handle: string;
+  name: string;
+  bio: string;
+  cover: string;
+  avatar: string | null;
+  initialWallet: number;
+  isGuest?: boolean;
+};
+
+export const demoAccounts: DemoAccount[] = [
+  {
+    id: "chai.nomad",
+    handle: "chai.nomad",
+    name: "Anu Joseph",
+    bio: "Chai enthusiast & slow-travel seeker wandering across Western Ghats and historic ruins ☕✨",
+    cover: hills,
+    avatar: null,
+    initialWallet: 5000,
+  },
+  {
+    id: "roamwithrahul",
+    handle: "roamwithrahul",
+    name: "Rahul Nair",
+    bio: "Motorcycles, misty switchbacks and quiet backwater canals. Based in Kochi.",
+    cover: backwaters,
+    avatar: null,
+    initialWallet: 5000,
+  },
+  {
+    id: "monsoon.meera",
+    handle: "monsoon.meera",
+    name: "Meera Menon",
+    bio: "Cartographer by day, cliff-sunset watcher by evening. Living out of a 40L rucksack.",
+    cover: beach,
+    avatar: null,
+    initialWallet: 5000,
+  },
+  {
+    id: "arjun.wanders",
+    handle: "arjun.wanders",
+    name: "Arjun Das",
+    bio: "Heritage architecture, ancient stone temples & local food explorer.",
+    cover: temple,
+    avatar: null,
+    initialWallet: 5000,
+  },
+  {
+    id: "fathima.fly",
+    handle: "fathima.fly",
+    name: "Fathima Rasheed",
+    bio: "High altitude passes, cold desert trails & Himalayan summits 🏔️",
+    cover: trek,
+    avatar: null,
+    initialWallet: 5000,
+  },
+  {
+    id: "jerin.on.road",
+    handle: "jerin.on.road",
+    name: "Jerin Thomas",
+    bio: "Hunting midnight parottas, Malabar biryanis and coastal street eats 🌶️",
+    cover: food,
+    avatar: null,
+    initialWallet: 5000,
+  },
+  {
+    id: "guest",
+    handle: "guest",
+    name: "Guest traveller",
+    bio: "Wandering across Kerala and beyond 🌴",
+    cover: hills,
+    avatar: null,
+    initialWallet: 2000,
+    isGuest: true,
   },
 ];

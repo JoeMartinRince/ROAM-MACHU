@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Check, Clock, Fuel, HeartHandshake, MapPin, Sparkles, X } from "lucide-react";
+import { Fuel, HeartHandshake, MapPin, Sparkles, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   addContribution,
@@ -10,6 +9,7 @@ import {
   useStore,
 } from "@/lib/store";
 import { places, type TripFund } from "@/lib/data";
+import { Avatar } from "@/components/Avatar";
 import { cn } from "@/lib/utils";
 
 const AMOUNT_PRESETS = [50, 100, 500, 1000];
@@ -25,7 +25,7 @@ export function TripFundCard({
   onFuelClick?: (fund: TripFund) => void;
   canFuel?: boolean;
 }) {
-  const store = useStore();
+  useStore();
   // Get live contributions count
   const contributions = getContributionsForFund(fund.id);
   const place = places.find((p) => p.id === fund.placeId);
@@ -141,7 +141,7 @@ export function TripFundCard({
 
 /** Fund Detail Bottom Sheet / Modal */
 export function FundDetailSheet({
-  fund,
+  fund: initialFund,
   onClose,
   onFuelClick,
   canFuel = true,
@@ -152,6 +152,7 @@ export function FundDetailSheet({
   canFuel?: boolean;
 }) {
   const store = useStore();
+  const fund = store.funds.find((f) => f.id === initialFund.id) ?? initialFund;
   const contributions = getContributionsForFund(fund.id);
   const place = places.find((p) => p.id === fund.placeId);
   const coverImg = fund.cover || place?.image || "";
@@ -278,11 +279,14 @@ export function FundDetailSheet({
                   key={c.id}
                   className="flex items-start justify-between gap-3 rounded-[12px] border border-border/80 bg-muted/40 p-3"
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-foreground">{c.name}</p>
-                    {c.note && (
-                      <p className="mt-0.5 text-xs italic text-muted-foreground">“{c.note}”</p>
-                    )}
+                  <div className="flex min-w-0 flex-1 items-start gap-2.5">
+                    <Avatar name={c.name} src={c.avatar} className="size-8 shrink-0 text-xs" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-foreground">{c.name}</p>
+                      {c.note && (
+                        <p className="mt-0.5 text-xs italic text-muted-foreground">“{c.note}”</p>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right shrink-0">
                     <span className="font-display text-xs font-normal text-teal tabular-nums">
@@ -324,59 +328,6 @@ export function FundDetailSheet({
   );
 }
 
-/** ------------------------------------------------------------------ *
- *  Razorpay checkout helpers
- * ------------------------------------------------------------------ */
-
-/** Dynamically load the Razorpay Checkout script once */
-function loadRazorpayScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (typeof window === "undefined") return resolve();
-    if ((window as Window & { Razorpay?: unknown }).Razorpay) return resolve();
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
-    document.head.appendChild(script);
-  });
-}
-
-/** Open the Razorpay test-mode checkout popup */
-function openRazorpayCheckout(opts: {
-  key: string;
-  amount: number; // in ₹ (we convert to paise)
-  name: string;
-  fundTitle: string;
-  onSuccess: (paymentId: string) => void;
-  onDismiss: () => void;
-}) {
-  const rzp = new (
-    window as Window & {
-      Razorpay: new (options: Record<string, unknown>) => { open(): void };
-    }
-  ).Razorpay({
-    key: opts.key,
-    amount: opts.amount * 100, // paise
-    currency: "INR",
-    name: "Roam Machu",
-    description: `Fuel: ${opts.fundTitle}`,
-    image: "/logo-splash.png",
-    prefill: {
-      name: opts.name,
-      contact: "",
-      email: "",
-    },
-    theme: { color: "#00b3a4" },
-    modal: {
-      ondismiss: opts.onDismiss,
-    },
-    handler: (response: { razorpay_payment_id: string }) => {
-      opts.onSuccess(response.razorpay_payment_id);
-    },
-  });
-  rzp.open();
-}
-
 /** Fuel Payment / Contribute Sheet */
 export function FuelTripSheet({
   fund,
@@ -388,64 +339,36 @@ export function FuelTripSheet({
   onSuccess?: () => void;
 }) {
   const store = useStore();
-  const [selectedAmount, setSelectedAmount] = useState<number>(100);
+  const walletBalance = store.walletBalance;
+  const [selectedAmount, setSelectedAmount] = useState<number>(500);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [name, setName] = useState<string>(
-    store.currentUser.name !== "Roamer" ? store.currentUser.name : "Anonymous traveller",
+    store.currentUser.isGuest ? "Anonymous traveller" : store.currentUser.name,
   );
   const [note, setNote] = useState<string>("");
-  const [processing, setProcessing] = useState(false);
   const [successResult, setSuccessResult] = useState<{ amount: number } | null>(null);
 
-  // Razorpay key — read from env first; user can paste their own if blank
-  const envKey = import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined;
-  const [rzpKey, setRzpKey] = useState<string>(envKey ?? "");
-  const keyMissing = !rzpKey.trim();
-
   const amount = customAmount ? parseInt(customAmount, 10) || 0 : selectedAmount;
+  const notEnoughBalance = amount > walletBalance;
 
-  const handlePay = async () => {
+  const handleConfirmFuel = () => {
     if (amount < 10) {
       toast.error("Minimum contribution is ₹10");
       return;
     }
-    if (keyMissing) {
-      toast.error("Please enter your Razorpay test key first");
+    if (notEnoughBalance) {
+      toast.error("Not enough balance");
       return;
     }
-
-    setProcessing(true);
 
     try {
-      await loadRazorpayScript();
-    } catch {
-      toast.error("Could not load Razorpay. Check your connection.");
-      setProcessing(false);
-      return;
+      addContribution(fund.id, amount, name, note);
+      setSuccessResult({ amount });
+      toast.success(`Fueled ₹${amount} on ${fund.title}! 🎉`);
+      onSuccess?.();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not record contribution");
     }
-
-    openRazorpayCheckout({
-      key: rzpKey.trim(),
-      amount,
-      name,
-      fundTitle: fund.title,
-      onSuccess: (paymentId) => {
-        try {
-          addContribution(fund.id, amount, name, note);
-          setSuccessResult({ amount });
-          toast.success(`Payment ₹${amount} successful 🎉 (${paymentId.slice(0, 14)}…)`);
-          onSuccess?.();
-        } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Could not record contribution");
-        } finally {
-          setProcessing(false);
-        }
-      },
-      onDismiss: () => {
-        setProcessing(false);
-        toast("Payment cancelled");
-      },
-    });
   };
 
   return (
@@ -457,7 +380,7 @@ export function FuelTripSheet({
     >
       <div
         aria-hidden="true"
-        onClick={() => !processing && onClose()}
+        onClick={onClose}
         className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
       />
 
@@ -473,7 +396,10 @@ export function FuelTripSheet({
               You fueled ₹{successResult.amount} 🎉
             </h2>
             <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-              Your contribution has been added to {fund.title}! Thanks for helping fuel this roam.
+              Your contribution has been added to {fund.title}! Remaining wallet balance:{" "}
+              <span className="font-semibold text-foreground">
+                {formatMoneyFull(walletBalance)}
+              </span>
             </p>
             <button
               type="button"
@@ -485,8 +411,8 @@ export function FuelTripSheet({
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
                 <span className="font-mono text-[10px] font-semibold tracking-[0.1em] text-teal uppercase">
                   FUEL THE TRIP
                 </span>
@@ -496,11 +422,23 @@ export function FuelTripSheet({
                 type="button"
                 aria-label="Close"
                 onClick={onClose}
-                disabled={processing}
-                className="tap-scale grid size-8 place-items-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
+                className="tap-scale grid size-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
               >
                 <X size={16} />
               </button>
+            </div>
+
+            {/* Wallet balance bar */}
+            <div className="mt-3 flex items-center justify-between rounded-[14px] border border-teal/30 bg-accent/60 px-3.5 py-2.5">
+              <div className="flex items-center gap-2">
+                <Wallet size={15} className="text-teal" />
+                <span className="text-xs font-semibold text-foreground">
+                  Your balance: {formatMoneyFull(walletBalance)}
+                </span>
+              </div>
+              <span className="font-mono text-[10px] text-muted-foreground">
+                @{store.currentUser.handle}
+              </span>
             </div>
 
             {/* Amount presets */}
@@ -542,6 +480,10 @@ export function FuelTripSheet({
                   className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-teal focus:ring-2 focus:ring-teal/30 font-display font-normal"
                 />
               </div>
+
+              {notEnoughBalance && (
+                <p className="mt-1.5 text-xs font-semibold text-destructive">Not enough balance</p>
+              )}
             </div>
 
             {/* Supporter details */}
@@ -550,13 +492,20 @@ export function FuelTripSheet({
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">
                   Your Name
                 </label>
-                <input
-                  type="text"
-                  placeholder="Anonymous traveller"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-teal focus:ring-2 focus:ring-teal/30"
-                />
+                <div className="mt-1 flex items-center gap-2.5">
+                  <Avatar
+                    name={name || store.currentUser.name}
+                    src={store.currentUser.avatar}
+                    className="size-9 shrink-0 text-xs"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Anonymous traveller"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-xl border border-input bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-teal focus:ring-2 focus:ring-teal/30"
+                  />
+                </div>
               </div>
 
               <div>
@@ -579,45 +528,19 @@ export function FuelTripSheet({
               </div>
             </div>
 
-            {/* Razorpay key input — shown only when env var is absent */}
-            {keyMissing && (
-              <div className="mt-3 rounded-xl border border-amber-400/40 bg-amber-400/10 p-3">
-                <p className="text-[11px] font-mono text-amber-500 dark:text-amber-300 mb-1.5">
-                  ⚠️ No Razorpay test key found. Paste your{" "}
-                  <span className="font-semibold">rzp_test_…</span> key below or add{" "}
-                  <code className="bg-amber-400/20 px-1 rounded">VITE_RAZORPAY_KEY_ID</code> to{" "}
-                  <code className="bg-amber-400/20 px-1 rounded">.env</code>.
-                </p>
-                <input
-                  type="text"
-                  placeholder="rzp_test_XXXXXXXXXXXXXXXXXX"
-                  value={rzpKey}
-                  onChange={(e) => setRzpKey(e.target.value)}
-                  spellCheck={false}
-                  className="w-full rounded-lg border border-amber-400/50 bg-card px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-teal focus:ring-2 focus:ring-teal/30"
-                />
-              </div>
-            )}
-
-            {/* Pay button */}
+            {/* Confirm button */}
             <div className="mt-5">
               <button
                 type="button"
-                disabled={processing || amount < 10 || keyMissing}
-                onClick={handlePay}
-                className="tap-scale flex h-11 w-full items-center justify-center gap-2 rounded-full bg-teal font-display text-sm font-normal text-white shadow-float transition hover:brightness-105 disabled:opacity-50"
+                disabled={amount < 10 || notEnoughBalance}
+                onClick={handleConfirmFuel}
+                className="tap-scale flex h-11 w-full items-center justify-center gap-2 rounded-full bg-teal font-display text-sm font-normal text-white shadow-float transition hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {processing ? (
-                  <span className="inline-flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Opening Razorpay…</span>
-                  </span>
-                ) : (
-                  <span>Pay ₹{amount} via Razorpay</span>
-                )}
+                <Fuel size={16} />
+                <span>{notEnoughBalance ? "Not enough balance" : `Confirm & Fuel ₹${amount}`}</span>
               </button>
               <p className="mt-2 text-center text-[11px] text-muted-foreground font-mono">
-                🔒 Razorpay test mode · no real money is charged
+                Deducted from your demo wallet ({formatMoneyFull(walletBalance)} available)
               </p>
             </div>
           </>

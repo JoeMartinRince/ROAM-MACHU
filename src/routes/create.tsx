@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { Camera, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { places } from "@/lib/data";
-import { addPost } from "@/lib/store";
+import { addPost, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export const MAX_VIDEO_BYTES = 20 * 1024 * 1024;

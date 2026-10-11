@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { creators, type Post } from "@/lib/data";
-import { useStore } from "@/lib/store";
+import { type Post } from "@/lib/data";
+import { getCreatorByHandle, useStore } from "@/lib/store";
 import { ActionStack } from "@/components/ActionStack";
 import { PlaceTag } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
@@ -53,7 +53,7 @@ function Reel({
     io.observe(v);
     return () => io.disconnect();
   }, [index, onActive]);
-  const c = creators.find((x) => x.handle === post.creator);
+  const c = getCreatorByHandle(post.creator);
 
   return (
     <section

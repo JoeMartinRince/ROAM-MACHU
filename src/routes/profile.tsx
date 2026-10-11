@@ -7,34 +7,29 @@ import {
   Clapperboard,
   Compass,
   Eye,
-  Fuel,
-  Image as ImageIcon,
-  MoreVertical,
+  HeartHandshake,
   Plus,
   Settings,
   Trash2,
   Upload,
+  Wallet,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  formatCount,
-  formatMoneyFull,
-  formatMoneyShort,
-  photos,
-  places,
-  type TripFund,
-} from "@/lib/data";
+import { formatCount, formatMoneyFull, photos, places, type TripFund, type User } from "@/lib/data";
 import {
   closeTripFund,
   createTripFund,
+  getContributionsByUser,
   getFundsByOwner,
+  getTotalReceivedByOwner,
+  openSettingsModal,
   updateCurrentUser,
   updateTripFund,
   useStore,
 } from "@/lib/store";
 import { Avatar } from "@/components/Avatar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBellButton } from "@/components/DemoModals";
 import { processAvatarFile } from "@/hooks/use-profile-avatar";
 import { FundDetailSheet, TripFundCard } from "@/components/TripFundCard";
 import { cn } from "@/lib/utils";
@@ -67,7 +62,6 @@ function OwnProfile() {
 
   const [tab, setTab] = useState<"reels" | "trips" | "saved">("reels");
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [createFundOpen, setCreateFundOpen] = useState(false);
   const [editingFund, setEditingFund] = useState<TripFund | null>(null);
   const [selectedFund, setSelectedFund] = useState<TripFund | null>(null);
@@ -79,7 +73,17 @@ function OwnProfile() {
     () => getFundsByOwner(currentUser.handle),
     [currentUser.handle, store.funds],
   );
+  const totalReceived = useMemo(
+    () => getTotalReceivedByOwner(currentUser.handle),
+    [currentUser.handle, store.funds],
+  );
   const fundedCount = useMemo(() => myFunds.filter((f) => f.status === "funded").length, [myFunds]);
+
+  // Trips fueled by current user ("Funded by me")
+  const fundedByMe = useMemo(
+    () => getContributionsByUser(store.activeAccountId),
+    [store.activeAccountId, store.contributions, store.funds],
+  );
 
   // User posts / reels / saved
   const myPosts = useMemo(
@@ -96,6 +100,13 @@ function OwnProfile() {
         ? store.posts.filter((p) => store.savedPostIds.includes(p.id))
         : store.posts.slice(0, 4),
     [store.posts, store.savedPostIds],
+  );
+
+  const myFollowers = useMemo(
+    () =>
+      store.creators.find((c) => c.handle.toLowerCase() === currentUser.handle.toLowerCase())
+        ?.followers ?? 0,
+    [store.creators, currentUser.handle],
   );
 
   const grid = tab === "reels" ? myReels : tab === "trips" ? myPosts : savedPosts;
@@ -126,7 +137,7 @@ function OwnProfile() {
 
   return (
     <div className="lg:mx-auto lg:max-w-[1080px] lg:px-8 lg:py-8">
-      {/* Cover image with gear settings icon */}
+      {/* Cover image with notifications bell & gear settings icon */}
       <div className="relative h-36 w-full overflow-hidden lg:h-60 lg:rounded-[20px]">
         <img src={coverImg} alt="" className="size-full object-cover" />
         <div
@@ -137,14 +148,17 @@ function OwnProfile() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-background/60 to-transparent"
         />
-        <button
-          type="button"
-          aria-label="Appearance & Settings"
-          onClick={() => setSettingsOpen(true)}
-          className="tap-scale absolute right-4 top-[calc(var(--safe-top)+0.75rem)] z-10 grid size-9 place-items-center rounded-full bg-black/35 text-white backdrop-blur-md transition hover:bg-black/50 lg:top-4"
-        >
-          <Settings size={17} />
-        </button>
+        <div className="absolute right-4 top-[calc(var(--safe-top)+0.75rem)] z-10 flex items-center gap-2 lg:top-4">
+          <NotificationBellButton className="border-white/20 bg-black/35 text-white backdrop-blur-md hover:bg-black/50" />
+          <button
+            type="button"
+            aria-label="Appearance & Settings"
+            onClick={() => openSettingsModal(true)}
+            className="tap-scale grid size-9 place-items-center rounded-full bg-black/35 text-white backdrop-blur-md transition hover:bg-black/50"
+          >
+            <Settings size={17} />
+          </button>
+        </div>
       </div>
 
       <div className="relative -mt-11 flex flex-col items-center px-4 text-center lg:-mt-11 lg:px-6">
@@ -185,6 +199,20 @@ function OwnProfile() {
               <p className="mt-0.5 text-xs font-normal text-muted-foreground">
                 @{currentUser.handle}
               </p>
+              {/* Demo signed-in chip & wallet balance */}
+              <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5 lg:justify-start">
+                <button
+                  type="button"
+                  onClick={() => openSettingsModal(true)}
+                  className="tap-scale inline-flex items-center gap-1.5 rounded-full border border-teal/30 bg-accent px-2.5 py-0.5 text-[11px] font-medium text-teal"
+                >
+                  <span className="size-1.5 rounded-full bg-teal" />
+                  <span>Demo: signed in as {currentUser.name}</span>
+                </button>
+                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 font-mono text-[11px] font-semibold text-foreground tabular-nums">
+                  <Wallet size={11} className="text-teal" /> {formatMoneyFull(store.walletBalance)}
+                </span>
+              </div>
               {currentUser.bio && (
                 <p className="mt-1.5 max-w-md text-xs text-foreground/80 leading-relaxed font-sans">
                   {currentUser.bio}
@@ -198,7 +226,7 @@ function OwnProfile() {
             <div className="mt-3 grid w-full grid-cols-3 divide-x divide-border py-1 lg:mt-0 lg:w-auto">
               {[
                 ["Posts", myPosts.length + myReels.length],
-                ["Followers", 0],
+                ["Followers", myFollowers],
                 ["Trips funded", fundedCount],
               ].map(([l, n]) => (
                 <div key={l} className="px-3 text-center lg:px-4">
@@ -226,11 +254,14 @@ function OwnProfile() {
 
       {/* "My trip funds" Section */}
       <div className="mt-6 px-4 lg:px-0">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-base font-semibold text-foreground">My trip funds</h2>
             <span className="rounded-full bg-accent px-2 py-0.5 font-mono text-[10px] font-semibold text-teal uppercase">
               {myFunds.length} total
+            </span>
+            <span className="rounded-full bg-teal/15 px-2.5 py-0.5 font-display text-xs font-normal text-teal tabular-nums">
+              Received {formatMoneyFull(totalReceived)}
             </span>
           </div>
           <button
@@ -305,6 +336,56 @@ function OwnProfile() {
                   )}
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* "Funded by me" ("Trips I fueled") Section */}
+      <div className="mt-6 px-4 lg:px-0">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <HeartHandshake size={16} className="text-teal" />
+            <h2 className="text-base font-semibold text-foreground">Trips I fueled</h2>
+            <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground uppercase">
+              Funded by me · {fundedByMe.length}
+            </span>
+          </div>
+        </div>
+
+        {fundedByMe.length === 0 ? (
+          <div className="rounded-[16px] border border-dashed border-border bg-card/50 p-4 text-center">
+            <p className="text-xs text-muted-foreground">
+              You haven’t fueled any trips yet. Open a creator’s profile to support their roam!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {fundedByMe.map((c) => (
+              <Link
+                key={c.id}
+                to="/u/$handle"
+                params={{ handle: c.ownerHandle }}
+                className="tap-scale flex items-center justify-between gap-3 rounded-[14px] border border-border bg-card p-3 shadow-2xs transition-colors hover:border-teal/40"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-foreground">{c.fundTitle}</p>
+                  <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                    by {c.ownerName} (@{c.ownerHandle})
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span className="font-display text-xs font-normal text-teal tabular-nums">
+                    {formatMoneyFull(c.amount)}
+                  </span>
+                  <p className="font-mono text-[10px] text-muted-foreground">
+                    {new Date(c.createdAt).toLocaleDateString("en-IN", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              </Link>
             ))}
           </div>
         )}
@@ -414,39 +495,6 @@ function OwnProfile() {
           canFuel={false}
           onClose={() => setSelectedFund(null)}
         />
-      )}
-
-      {/* Settings (Appearance) Modal */}
-      {settingsOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Settings"
-          className="fixed inset-0 z-[1200] flex items-end justify-center sm:items-center p-0 sm:p-4"
-        >
-          <div
-            aria-hidden="true"
-            onClick={() => setSettingsOpen(false)}
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
-          />
-          <div className="relative z-10 w-full max-w-md rounded-t-[20px] border border-border bg-card p-5 pb-[calc(var(--safe-bottom)+1.5rem)] shadow-card animate-in slide-in-from-bottom-4 duration-200 sm:rounded-[20px] sm:pb-5">
-            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border sm:hidden" />
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">Settings & Appearance</h2>
-              <button
-                type="button"
-                aria-label="Close settings"
-                onClick={() => setSettingsOpen(false)}
-                className="tap-scale grid size-8 place-items-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="mt-4 space-y-4">
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

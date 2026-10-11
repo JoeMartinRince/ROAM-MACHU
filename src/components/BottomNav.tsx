@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Compass, Clapperboard, User, Plus, Bell } from "lucide-react";
-import { toast } from "sonner";
+import { Home, Compass, Clapperboard, User, Plus, Bell, Settings } from "lucide-react";
 import logo from "@/assets/logo-header.png";
 import logoDark from "@/assets/logo-dark.png";
+import { openNotificationsModal, openSettingsModal, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const ALL_TABS = [
@@ -14,6 +14,8 @@ const ALL_TABS = [
 
 export function DesktopSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const store = useStore();
+  const unreadCount = store.notifications.filter((n) => !n.read).length;
 
   return (
     <aside
@@ -82,22 +84,43 @@ export function DesktopSidebar() {
         </Link>
       </div>
 
-      <div className="space-y-3 border-t border-border/70 pt-4">
+      <div className="space-y-2 border-t border-border/70 pt-4">
         <button
           type="button"
           aria-label="Notifications"
-          onClick={() => toast("You're all caught up on new roams!")}
+          onClick={() => openNotificationsModal(true)}
           className="tap-scale flex w-full items-center justify-between rounded-xl border border-border/80 bg-muted/60 px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
         >
           <span className="flex items-center gap-3">
             <span className="relative grid size-8 place-items-center rounded-full bg-background text-foreground shadow-2xs dark:bg-card">
               <Bell size={16} />
-              <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-primary ring-2 ring-background" />
+              {unreadCount > 0 && (
+                <span className="absolute right-1 top-1 size-2 rounded-full bg-primary ring-2 ring-background" />
+              )}
             </span>
             <span>Notifications</span>
           </span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-            New
+          {unreadCount > 0 && (
+            <span className="rounded-full bg-primary px-2 py-0.5 font-mono text-xs font-semibold text-primary-foreground">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          aria-label="Settings & Demo login"
+          onClick={() => openSettingsModal(true)}
+          className="tap-scale flex w-full items-center justify-between rounded-xl border border-border/80 bg-muted/60 px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          <span className="flex items-center gap-3">
+            <span className="grid size-8 place-items-center rounded-full bg-background text-foreground shadow-2xs dark:bg-card">
+              <Settings size={16} />
+            </span>
+            <span>Settings</span>
+          </span>
+          <span className="truncate max-w-[90px] rounded-full bg-accent px-2 py-0.5 font-mono text-[10px] font-semibold text-teal">
+            @{store.currentUser.handle}
           </span>
         </button>
       </div>

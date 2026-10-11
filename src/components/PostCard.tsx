@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
-import { creators, places, type Post } from "@/lib/data";
+import { places, type Post } from "@/lib/data";
+import { getCreatorByHandle, useStore } from "@/lib/store";
 import { ActionStack } from "./ActionStack";
 import { Avatar } from "./Avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,7 +52,8 @@ export function PostCardSkeleton() {
 }
 
 export function PostCard({ post }: { post: Post }) {
-  const c = creators.find((x) => x.handle === post.creator);
+  useStore();
+  const c = getCreatorByHandle(post.creator);
   const [loaded, setLoaded] = useState(false);
 
   return (

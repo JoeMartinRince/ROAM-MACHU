@@ -342,3 +342,373 @@
 html[data-splash-seen] .rm-splash {
   display: none !important;
 }
+
+/* ==========================================================================
+   Pwoli (Upvote) Paper-Plane Takeoff & Waste (Downvote) Dustbin Animations
+   Rules: Animate ONLY transform and opacity. Respect prefers-reduced-motion.
+   ========================================================================== */
+
+/* 1. Departure-board digit flip (250ms) */
+@keyframes rm-flip-out-up {
+  0% {
+    transform: translate3d(0, 0%, 0) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -105%, 0) scaleY(0.35);
+    opacity: 0;
+  }
+}
+
+@keyframes rm-flip-in-up {
+  0% {
+    transform: translate3d(0, 105%, 0) scaleY(0.35);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0%, 0) scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rm-flip-out-down {
+  0% {
+    transform: translate3d(0, 0%, 0) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 105%, 0) scaleY(0.35);
+    opacity: 0;
+  }
+}
+
+@keyframes rm-flip-in-down {
+  0% {
+    transform: translate3d(0, -105%, 0) scaleY(0.35);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0%, 0) scaleY(1);
+    opacity: 1;
+  }
+}
+
+.rm-flip-out-up {
+  animation: rm-flip-out-up 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.rm-flip-in-up {
+  animation: rm-flip-in-up 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.rm-flip-out-down {
+  animation: rm-flip-out-down 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.rm-flip-in-down {
+  animation: rm-flip-in-down 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 2. Pwoli button icon press-down squash (scale 0.85 at 80ms) & settle bounce */
+@keyframes rm-pwoli-press {
+  0% {
+    transform: scale(1);
+  }
+  11.4% {
+    transform: scale(0.85);
+  }
+  30% {
+    transform: scale(0.94);
+  }
+  58% {
+    transform: scale(1.16) rotate(-4deg);
+  }
+  80% {
+    transform: scale(0.96) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.rm-pwoli-press {
+  animation: rm-pwoli-press 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Quick un-vote fade (150ms) and switch fade (120ms) */
+@keyframes rm-fade-outline {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.rm-unvote-fade {
+  animation: rm-fade-outline 150ms ease-out forwards;
+}
+
+.rm-switch-fade-120 {
+  animation: rm-fade-outline 120ms ease-out forwards;
+}
+
+/* 3. Pwoli flying paper plane: tilts up ~30deg, curved path ~90px up-right, shrinks slightly, 700ms ease-out */
+@keyframes rm-pwoli-flight {
+  0% {
+    transform: translate3d(0px, 0px, 0) rotate(-26deg) scale(1);
+    opacity: 1;
+  }
+  18% {
+    transform: translate3d(10px, -15px, 0) rotate(-30deg) scale(0.94);
+    opacity: 1;
+  }
+  42% {
+    transform: translate3d(21px, -38px, 0) rotate(-32deg) scale(0.85);
+    opacity: 0.96;
+  }
+  70% {
+    transform: translate3d(30px, -63px, 0) rotate(-34deg) scale(0.74);
+    opacity: 0.72;
+  }
+  100% {
+    transform: translate3d(36px, -82px, 0) rotate(-35deg) scale(0.62);
+    opacity: 0;
+  }
+}
+
+.rm-pwoli-flyer {
+  animation: rm-pwoli-flight 700ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+/* Pwoli dotted trail fading from the plane backward */
+@keyframes rm-pwoli-trail-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  18% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  55% {
+    opacity: 0.38;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.rm-pwoli-trail-dot {
+  animation: rm-pwoli-trail-fade 520ms ease-out both;
+  will-change: transform, opacity;
+}
+
+/* 4. Waste (Downvote) 900ms sequence:
+   0–150ms (0%–16.7%): gray paper plane pops out above-left of button
+   150–500ms (16.7%–55.6%): tilts down ~40deg, flies in short arc toward bin opening with spin drift
+   500–650ms (55.6%–72.2%): scales down & drops into bin opening (clipped by bin front rim)
+*/
+@keyframes rm-waste-plane-throw {
+  0% {
+    transform: translate3d(-24px, -18px, 0) rotate(10deg) scale(0.35);
+    opacity: 0;
+  }
+  16.7% {
+    transform: translate3d(-20px, -16px, 0) rotate(28deg) scale(0.96);
+    opacity: 1;
+  }
+  32% {
+    transform: translate3d(-12px, -13px, 0) rotate(40deg) scaleX(0.9) scaleY(0.74);
+    opacity: 1;
+  }
+  45% {
+    transform: translate3d(-5px, -8px, 0) rotate(46deg) scaleX(0.84) scaleY(0.86);
+    opacity: 1;
+  }
+  55.6% {
+    transform: translate3d(-1px, -1px, 0) rotate(54deg) scale(0.74);
+    opacity: 1;
+  }
+  64% {
+    transform: translate3d(1px, 5px, 0) rotate(62deg) scale(0.52);
+    opacity: 0.95;
+  }
+  72.2% {
+    transform: translate3d(1px, 11px, 0) rotate(68deg) scale(0.24);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(1px, 11px, 0) rotate(68deg) scale(0.24);
+    opacity: 0;
+  }
+}
+
+.rm-waste-throw-plane {
+  animation: rm-waste-plane-throw 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Faint dotted trail behind the thrown gray plane (150ms–550ms) */
+@keyframes rm-waste-trail-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  25% {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.38;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+.rm-waste-trail-dot {
+  animation: rm-waste-trail-fade 380ms ease-out both;
+  will-change: transform, opacity;
+}
+
+/* Lid flap (250–550ms = 27.8%–61.1% of 900ms): rotates -35deg around left hinge */
+@keyframes rm-bin-lid-flap {
+  0%,
+  27.8% {
+    transform: rotate(0deg);
+  }
+  38.9% {
+    transform: rotate(-36deg);
+  }
+  55% {
+    transform: rotate(-36deg);
+  }
+  62%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.rm-bin-lid {
+  transform-box: fill-box;
+  transform-origin: 10% 100%;
+}
+
+.rm-bin-lid-flap {
+  transform-box: fill-box;
+  transform-origin: 10% 100%;
+  animation: rm-bin-lid-flap 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Bin reaction (650–900ms = 72.2%–100% of 900ms): shake translateX ±2px & tiny squash */
+@keyframes rm-bin-reaction {
+  0%,
+  72.2% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+  76% {
+    transform: translate3d(-2px, 1px, 0) scale(1.08, 0.9);
+  }
+  81% {
+    transform: translate3d(2px, 0, 0) scale(0.96, 1.04);
+  }
+  86% {
+    transform: translate3d(-2px, 0, 0) scale(1.03, 0.97);
+  }
+  91% {
+    transform: translate3d(1.5px, 0, 0) scale(0.99, 1.01);
+  }
+  96% {
+    transform: translate3d(-1px, 0, 0) scale(1, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+  }
+}
+
+.rm-bin-shake {
+  animation: rm-bin-reaction 900ms ease-out forwards;
+}
+
+/* Dust dots puffing up from lid (650–900ms = 72.2%–100% of 900ms) */
+@keyframes rm-dust-puff-1 {
+  0%,
+  71% {
+    transform: translate3d(-3px, -5px, 0) scale(0.3);
+    opacity: 0;
+  }
+  77% {
+    transform: translate3d(-7px, -11px, 0) scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(-11px, -16px, 0) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes rm-dust-puff-2 {
+  0%,
+  72% {
+    transform: translate3d(0px, -6px, 0) scale(0.3);
+    opacity: 0;
+  }
+  78% {
+    transform: translate3d(1px, -13px, 0) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(2px, -19px, 0) scale(0.45);
+    opacity: 0;
+  }
+}
+
+@keyframes rm-dust-puff-3 {
+  0%,
+  71.5% {
+    transform: translate3d(3px, -5px, 0) scale(0.3);
+    opacity: 0;
+  }
+  78% {
+    transform: translate3d(8px, -10px, 0) scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(12px, -15px, 0) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.rm-dust-1 {
+  animation: rm-dust-puff-1 900ms ease-out forwards;
+}
+.rm-dust-2 {
+  animation: rm-dust-puff-2 900ms ease-out forwards;
+}
+.rm-dust-3 {
+  animation: rm-dust-puff-3 900ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rm-pwoli-press,
+  .rm-pwoli-flyer,
+  .rm-pwoli-trail-dot,
+  .rm-waste-throw-plane,
+  .rm-waste-trail-dot,
+  .rm-bin-lid-flap,
+  .rm-bin-shake,
+  .rm-dust-1,
+  .rm-dust-2,
+  .rm-dust-3,
+  .rm-flip-out-up,
+  .rm-flip-in-up,
+  .rm-flip-out-down,
+  .rm-flip-in-down {
+    animation: none !important;
+  }
+}

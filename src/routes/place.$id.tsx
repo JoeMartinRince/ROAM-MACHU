@@ -1,8 +1,9 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowBigDown, ArrowBigUp, CalendarRange, Camera, ChevronLeft, MapPin } from "lucide-react";
+import { CalendarRange, Camera, ChevronLeft, MapPin } from "lucide-react";
 import { places } from "@/lib/data";
 import { placeScore, useStore, votePlace } from "@/lib/store";
+import { PlaceVoteRow } from "@/components/ActionStack";
 import { PostCard } from "@/components/PostCard";
 import { PlaceAiOverview } from "@/components/PlaceAiOverview";
 import { PlaceItinerary } from "@/components/PlaceItinerary";
@@ -66,45 +67,7 @@ function PlacePage() {
         </div>
 
         <div className="relative -mt-4 rounded-t-[20px] bg-background px-4 pt-5 lg:mt-4 lg:rounded-[20px] lg:border lg:border-border lg:bg-card lg:p-5 lg:shadow-card">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="shrink-0 rounded-[16px] bg-accent px-3.5 py-2 text-center">
-              <p
-                key={score}
-                className="animate-count-pop font-display text-xl font-normal text-teal tabular-nums"
-              >
-                {score}
-              </p>
-              <p className="font-mono text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">
-                SCORE
-              </p>
-            </div>
-            <button
-              type="button"
-              aria-pressed={v === 1}
-              onClick={() => votePlace(place.id, 1)}
-              className={cn(
-                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-display text-sm font-normal transition-colors duration-200",
-                v === 1
-                  ? "animate-vote-bounce bg-primary text-primary-foreground shadow-float"
-                  : "border border-border bg-muted text-foreground hover:bg-muted/80",
-              )}
-            >
-              <ArrowBigUp size={19} fill={v === 1 ? "currentColor" : "none"} /> Pwoli
-            </button>
-            <button
-              type="button"
-              aria-pressed={v === -1}
-              onClick={() => votePlace(place.id, -1)}
-              className={cn(
-                "tap-scale flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full font-display text-sm font-normal transition-colors duration-200",
-                v === -1
-                  ? "animate-vote-bounce bg-destructive text-destructive-foreground shadow-card"
-                  : "border border-border bg-muted text-foreground hover:bg-muted/80",
-              )}
-            >
-              <ArrowBigDown size={19} fill={v === -1 ? "currentColor" : "none"} /> Waste
-            </button>
-          </div>
+          <PlaceVoteRow score={score} vote={v} onVote={(dir) => votePlace(place.id, dir)} />
 
           {/* AI Place Overview */}
           <PlaceAiOverview placeName={place.name} region={place.region} className="mt-4" />
