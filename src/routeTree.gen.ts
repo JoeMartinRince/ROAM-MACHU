@@ -15,6 +15,7 @@ import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ReelsRouteImport } from './routes/reels'
 import { Route as PlaceIdRouteImport } from './routes/place.$id'
+import { Route as UHandleRouteImport } from './routes/u.$handle'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const PlaceIdRoute = PlaceIdRouteImport.update({
   path: '/place/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UHandleRoute = UHandleRouteImport.update({
+  id: '/u/$handle',
+  path: '/u/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/reels': typeof ReelsRoute
   '/place/$id': typeof PlaceIdRoute
+  '/u/$handle': typeof UHandleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/reels': typeof ReelsRoute
   '/place/$id': typeof PlaceIdRoute
+  '/u/$handle': typeof UHandleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +79,27 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/reels': typeof ReelsRoute
   '/place/$id': typeof PlaceIdRoute
+  '/u/$handle': typeof UHandleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/explore' | '/profile' | '/reels' | '/place/$id'
+  fullPaths:
+    | '/'
+    | '/create'
+    | '/explore'
+    | '/profile'
+    | '/reels'
+    | '/place/$id'
+    | '/u/$handle'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/explore' | '/profile' | '/reels' | '/place/$id'
+  to:
+    | '/'
+    | '/create'
+    | '/explore'
+    | '/profile'
+    | '/reels'
+    | '/place/$id'
+    | '/u/$handle'
   id:
     | '__root__'
     | '/'
@@ -85,6 +108,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reels'
     | '/place/$id'
+    | '/u/$handle'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +118,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ReelsRoute: typeof ReelsRoute
   PlaceIdRoute: typeof PlaceIdRoute
+  UHandleRoute: typeof UHandleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$handle': {
+      id: '/u/$handle'
+      path: '/u/$handle'
+      fullPath: '/u/$handle'
+      preLoaderRoute: typeof UHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -150,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ReelsRoute: ReelsRoute,
   PlaceIdRoute: PlaceIdRoute,
+  UHandleRoute: UHandleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

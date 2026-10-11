@@ -1,11 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { toast } from "sonner";
 import { creators, type Post } from "@/lib/data";
-import { toggleFollow, useStore } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { ActionStack } from "@/components/ActionStack";
-import { CommentsDrawer } from "@/components/CommentsDrawer";
 import { PlaceTag } from "@/components/PostCard";
 import { Avatar } from "@/components/Avatar";
 
@@ -55,9 +53,7 @@ function Reel({
     io.observe(v);
     return () => io.disconnect();
   }, [index, onActive]);
-  const s = useStore();
   const c = creators.find((x) => x.handle === post.creator);
-  const isFollowing = s.creatorStats[post.creator]?.isFollowing ?? false;
 
   return (
     <section
@@ -84,9 +80,14 @@ function Reel({
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/95 via-black/70 to-transparent"
         />
         <div className="absolute bottom-[calc(var(--safe-bottom)+5.5rem)] left-4 right-20 space-y-1.5 text-on-media lg:bottom-5 lg:left-5 lg:right-5">
-          <div className="flex items-center gap-2.5">
+          <Link
+            to="/u/$handle"
+            params={{ handle: post.creator }}
+            className="tap-scale flex items-center gap-2.5"
+          >
             <Avatar
               name={c?.name ?? post.creator}
+              src={c?.avatar}
               className="size-9 text-xs ring-2 ring-white/85 shadow-xs"
             />
             <div className="min-w-0">
@@ -97,21 +98,7 @@ function Reel({
                 @{post.creator}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                const next = toggleFollow(post.creator);
-                toast.success(
-                  next
-                    ? `Following @${post.creator} — saved to Neon DB!`
-                    : `Unfollowed @${post.creator}`,
-                );
-              }}
-              className="tap-scale ml-1 rounded-full border border-white/50 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-white/25"
-            >
-              {isFollowing ? "Following" : "Follow"}
-            </button>
-          </div>
+          </Link>
           <p className="line-clamp-2 text-xs leading-relaxed text-white/95 drop-shadow-xs">
             {post.caption}
           </p>
@@ -207,8 +194,6 @@ function Reels() {
           <ChevronDown size={20} />
         </button>
       </div>
-
-      <CommentsDrawer />
     </div>
   );
 }

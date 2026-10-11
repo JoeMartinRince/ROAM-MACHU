@@ -160,8 +160,8 @@ function Explore() {
                   return (
                     <Link
                       key={c.handle}
-                      to="/place/$id"
-                      params={{ id: p.id }}
+                      to="/u/$handle"
+                      params={{ handle: c.handle }}
                       className="tap-scale relative h-36 w-[154px] shrink-0 overflow-hidden rounded-[20px] border border-border bg-card"
                     >
                       <img

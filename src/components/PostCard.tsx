@@ -68,9 +68,14 @@ export function PostCard({ post }: { post: Post }) {
 
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2.5 p-3.5 sm:p-4">
         <div className="min-w-0 flex-1 space-y-1.5 text-on-media">
-          <Link to="/profile" className="tap-scale inline-flex max-w-full items-center gap-2.5">
+          <Link
+            to="/u/$handle"
+            params={{ handle: post.creator }}
+            className="tap-scale inline-flex max-w-full items-center gap-2.5"
+          >
             <Avatar
               name={c?.name ?? post.creator}
+              src={c?.avatar}
               className="size-9 text-xs ring-2 ring-white/85 shadow-xs"
             />
             <div className="min-w-0">

@@ -1,318 +1,351 @@
 import { useSyncExternalStore } from "react";
-import { creators, places, seedPosts, seedReels, type Post } from "./data";
 import {
-  addCommentInNeon,
-  fetchPostsFromSupabase,
-  fuelCreatorInNeon,
-  recordStoryViewInNeon,
-  saveCloudStateToSupabase,
-  savePlaceVoteInNeon,
-  saveStoryToNeon,
-  seedInitialPostsToSupabase,
-  toggleFollowInNeon,
-  type CommentItem,
-  type CreatorStats,
-  type Story,
-} from "./supabase";
+  creators as seedCreators,
+  formatMoneyFull,
+  formatMoneyShort,
+  photos,
+  places,
+  seedContributions,
+  seedPosts,
+  seedReels,
+  seedTripFunds,
+  type Contribution,
+  type Creator,
+  type Post,
+  type TripFund,
+  type User,
+} from "./data";
+
+export { formatMoneyFull, formatMoneyShort };
 
 export type Vote = 1 | -1 | 0;
-export type DbStatus = "connecting" | "connected" | "needs_setup";
 
-export const initialStories: Story[] = [
-  {
-    id: "s1",
-    creator: "chai.nomad",
-    creatorName: "Anu Joseph",
-    placeId: "alleppey",
-    caption: "Sunrise shikara ride through Alleppey canals 🛶✨",
-    mediaUrl: places.find((p) => p.id === "alleppey")?.image,
-    mediaType: "image",
-    views: 1420,
-  },
-  {
-    id: "s2",
-    creator: "roamwithrahul",
-    creatorName: "Rahul Nair",
-    placeId: "munnar",
-    caption: "6 AM tea estate walk in Kolukkumalai 🌫️🍵",
-    mediaUrl: places.find((p) => p.id === "munnar")?.image,
-    mediaType: "image",
-    views: 980,
-  },
-  {
-    id: "s3",
-    creator: "backpackbinu",
-    creatorName: "Binu Thomas",
-    placeId: "athirappilly",
-    caption: "Monsoon spray from Athirappilly viewpoint 💦",
-    mediaUrl: places.find((p) => p.id === "athirappilly")?.image,
-    mediaType: "image",
-    views: 760,
-  },
-  {
-    id: "s4",
-    creator: "meera.maps",
-    creatorName: "Meera K",
-    placeId: "varkala",
-    caption: "North Cliff golden hour + fresh lime soda 🌅",
-    mediaUrl: places.find((p) => p.id === "varkala")?.image,
-    mediaType: "image",
-    views: 1890,
-  },
-  {
-    id: "s5",
-    creator: "trekkingtess",
-    creatorName: "Tess Mathew",
-    placeId: "ladakh",
-    caption: "Pangong Lake blue hits different at 14,000 ft 🏔️",
-    mediaUrl: places.find((p) => p.id === "ladakh")?.image,
-    mediaType: "image",
-    views: 2310,
-  },
-  {
-    id: "s6",
-    creator: "foodiefaiz",
-    creatorName: "Faiz Ali",
-    placeId: "kochi",
-    caption: "Hot pazhampori + beef roast in Fort Kochi 🔥",
-    mediaUrl: places.find((p) => p.id === "kochi")?.image,
-    mediaType: "image",
-    views: 1650,
-  },
-];
-
-export const defaultCreatorStats: Record<string, CreatorStats> = {
-  "chai.nomad": {
-    handle: "chai.nomad",
-    name: "Anu Joseph",
-    live: true,
-    followersCount: 47300,
-    isFollowing: false,
-    tripsFunded: 12,
-    raisedAmount: 18400,
-    goalAmount: 30000,
-  },
-  roamwithrahul: {
-    handle: "roamwithrahul",
-    name: "Rahul Nair",
-    live: true,
-    followersCount: 32900,
-    isFollowing: false,
-    tripsFunded: 9,
-    raisedAmount: 14200,
-    goalAmount: 25000,
-  },
-  backpackbinu: {
-    handle: "backpackbinu",
-    name: "Binu Thomas",
-    live: false,
-    followersCount: 19400,
-    isFollowing: false,
-    tripsFunded: 6,
-    raisedAmount: 9500,
-    goalAmount: 20000,
-  },
-  "meera.maps": {
-    handle: "meera.maps",
-    name: "Meera K",
-    live: false,
-    followersCount: 28100,
-    isFollowing: false,
-    tripsFunded: 8,
-    raisedAmount: 12100,
-    goalAmount: 20000,
-  },
-  trekkingtess: {
-    handle: "trekkingtess",
-    name: "Tess Mathew",
-    live: true,
-    followersCount: 54200,
-    isFollowing: false,
-    tripsFunded: 15,
-    raisedAmount: 24000,
-    goalAmount: 35000,
-  },
-  foodiefaiz: {
-    handle: "foodiefaiz",
-    name: "Faiz Ali",
-    live: false,
-    followersCount: 41800,
-    isFollowing: false,
-    tripsFunded: 11,
-    raisedAmount: 16500,
-    goalAmount: 25000,
-  },
-};
-
-type State = {
+export type State = {
+  currentUser: User;
+  creators: Creator[];
   posts: Post[];
   reels: Post[];
-  stories: Story[];
-  creatorStats: Record<string, CreatorStats>;
-  commentsByPost: Record<string, CommentItem[]>;
-  activeCommentPostId: string | null;
+  funds: TripFund[];
+  contributions: Contribution[];
   votes: Record<string, Vote>;
   placeVotes: Record<string, Vote>;
-  dbStatus: DbStatus;
+  following: Record<string, boolean>; // handle -> boolean
+  savedPostIds: string[];
 };
 
-const STORAGE_KEY = "roam_machu_state_v2";
+const USER_STORAGE_KEY = "roam-current-user";
+const FUNDS_STORAGE_KEY = "roam-trip-funds";
+const CONTRIBUTIONS_STORAGE_KEY = "roam-contributions";
+const FOLLOWING_STORAGE_KEY = "roam-following";
+const SAVED_STORAGE_KEY = "roam-saved-posts";
 
-const seedImageById = new Map<string, string>();
-for (const p of [...seedPosts, ...seedReels]) {
-  if (p.image) seedImageById.set(p.id, p.image);
+export function getInitialUser(): User {
+  if (typeof window === "undefined") {
+    return {
+      id: "device_default",
+      name: "Roamer",
+      handle: "roamer_1001",
+      bio: "Wandering across Kerala and beyond 🌴",
+      avatar: null,
+      cover: photos.hills,
+    };
+  }
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.handle) return parsed;
+    }
+  } catch {
+    /* fallback below */
+  }
+
+  // Create local user on first load
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const deviceId =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `dev_${Date.now()}_${randomSuffix}`;
+  const newUser: User = {
+    id: deviceId,
+    name: "Roamer",
+    handle: `roamer_${randomSuffix}`,
+    bio: "Wandering across Kerala and beyond 🌴",
+    avatar: null,
+    cover: photos.hills,
+  };
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
+  } catch {
+    /* ignore */
+  }
+  return newUser;
 }
 
-function hydrateImages(list: Post[]): Post[] {
-  return list.map((p) => {
-    if (p.image) return p;
-    const fallback = seedImageById.get(p.id) ?? places.find((pl) => pl.id === p.placeId)?.image;
-    return fallback ? { ...p, image: fallback } : p;
-  });
+function getStoredFunds(): TripFund[] {
+  if (typeof window === "undefined") return seedTripFunds;
+  try {
+    const raw = localStorage.getItem(FUNDS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    /* fallback to seed */
+  }
+  return seedTripFunds;
 }
 
-function hydrateStories(list: Story[]): Story[] {
-  return list.map((st) => {
-    if (st.mediaUrl) return st;
-    const fallback = places.find((pl) => pl.id === st.placeId)?.image ?? seedPosts[0]?.image;
-    return { ...st, mediaUrl: fallback };
-  });
+function getStoredContributions(): Contribution[] {
+  if (typeof window === "undefined") return seedContributions;
+  try {
+    const raw = localStorage.getItem(CONTRIBUTIONS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    /* fallback to seed */
+  }
+  return seedContributions;
 }
 
-function loadPersistedState(): Partial<State> {
+function getStoredFollowing(): Record<string, boolean> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return {
-      posts:
-        Array.isArray(parsed.posts) && parsed.posts.length > 0
-          ? hydrateImages(parsed.posts)
-          : undefined,
-      reels:
-        Array.isArray(parsed.reels) && parsed.reels.length > 0
-          ? hydrateImages(parsed.reels)
-          : undefined,
-      stories:
-        Array.isArray(parsed.stories) && parsed.stories.length > 0
-          ? hydrateStories(parsed.stories)
-          : undefined,
-      creatorStats: parsed.creatorStats ?? undefined,
-      commentsByPost: parsed.commentsByPost ?? undefined,
-      votes: parsed.votes ?? {},
-      placeVotes: parsed.placeVotes ?? {},
-    };
+    const raw = localStorage.getItem(FOLLOWING_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
   } catch {
-    return {};
+    /* ignore */
   }
+  return {};
 }
 
-function savePersistedState(s: State) {
-  if (typeof window === "undefined") return;
+function getStoredSaved(): string[] {
+  if (typeof window === "undefined") return [];
   try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        posts: s.posts,
-        reels: s.reels,
-        stories: s.stories,
-        creatorStats: s.creatorStats,
-        commentsByPost: s.commentsByPost,
-        votes: s.votes,
-        placeVotes: s.placeVotes,
-      }),
-    );
+    const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
   } catch {
-    // Ignore storage quota errors
+    /* ignore */
   }
+  return [];
 }
 
 let state: State = {
+  currentUser: getInitialUser(),
+  creators: seedCreators,
   posts: seedPosts,
   reels: seedReels,
-  stories: initialStories,
-  creatorStats: defaultCreatorStats,
-  commentsByPost: {},
-  activeCommentPostId: null,
+  funds: getStoredFunds(),
+  contributions: getStoredContributions(),
   votes: {},
   placeVotes: {},
-  dbStatus: "connected",
+  following: getStoredFollowing(),
+  savedPostIds: getStoredSaved(),
 };
 
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
-const set = (s: Partial<State>, persist = true) => {
+
+const set = (s: Partial<State>) => {
   state = { ...state, ...s };
-  if (persist) savePersistedState(state);
   emit();
 };
 
-let initialized = false;
-
-export async function syncWithSupabase() {
-  if (typeof window === "undefined") return;
-  const persisted = loadPersistedState();
-  if (persisted.posts || persisted.reels || persisted.stories || persisted.creatorStats) {
-    set(
-      {
-        posts: persisted.posts ?? state.posts,
-        reels: persisted.reels ?? state.reels,
-        stories: persisted.stories ?? state.stories,
-        creatorStats: persisted.creatorStats ?? state.creatorStats,
-        commentsByPost: persisted.commentsByPost ?? state.commentsByPost,
-        votes: persisted.votes ?? state.votes,
-        placeVotes: persisted.placeVotes ?? state.placeVotes,
-      },
-      false,
-    );
-  }
-
-  const res = await fetchPostsFromSupabase();
-  if (!res.ready) {
-    return;
-  }
-
-  if (res.posts.length === 0 && res.reels.length === 0) {
-    await seedInitialPostsToSupabase(state.posts, state.reels);
-    set({ dbStatus: "connected" }, false);
-  } else {
-    const mergedStats = { ...defaultCreatorStats, ...res.creatorStats };
-    const mergedPlaceVotes: Record<string, Vote> = { ...state.placeVotes };
-    for (const [k, v] of Object.entries(res.placeVotes)) {
-      if (v > 0) mergedPlaceVotes[k] = 1;
-      else if (v < 0) mergedPlaceVotes[k] = -1;
-      else mergedPlaceVotes[k] = 0;
-    }
-
-    set(
-      {
-        posts: res.posts.length > 0 ? hydrateImages(res.posts) : state.posts,
-        reels: res.reels.length > 0 ? hydrateImages(res.reels) : state.reels,
-        stories: res.stories.length > 0 ? hydrateStories(res.stories) : state.stories,
-        creatorStats: mergedStats,
-        commentsByPost:
-          Object.keys(res.commentsByPost).length > 0 ? res.commentsByPost : state.commentsByPost,
-        placeVotes: mergedPlaceVotes,
-        dbStatus: "connected",
-      },
-      true,
-    );
-  }
-}
-
-export function useStore() {
-  if (typeof window !== "undefined" && !initialized) {
-    initialized = true;
-    setTimeout(() => {
-      syncWithSupabase();
-    }, 0);
-  }
+export function useStore(): State {
   return useSyncExternalStore(
-    (l) => (listeners.add(l), () => listeners.delete(l)),
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
     () => state,
     () => state,
   );
+}
+
+/** Expose currentUser directly via store getter / hook */
+export function getCurrentUser(): User {
+  return state.currentUser;
+}
+
+export function updateCurrentUser(patch: Partial<User>) {
+  const updated: User = { ...state.currentUser, ...patch };
+  set({ currentUser: updated });
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updated));
+  } catch (err) {
+    console.error("Failed to persist currentUser:", err);
+  }
+}
+
+/** Get creator / user profile info by handle */
+export function getCreatorByHandle(handle: string): (Creator & { isCurrentUser?: boolean }) | null {
+  const clean = handle.replace(/^@/, "").toLowerCase();
+  if (state.currentUser.handle.toLowerCase() === clean) {
+    return {
+      handle: state.currentUser.handle,
+      name: state.currentUser.name,
+      bio: state.currentUser.bio,
+      avatar: state.currentUser.avatar,
+      cover: state.currentUser.cover,
+      followers: 0,
+      isCurrentUser: true,
+    };
+  }
+  const found = state.creators.find((c) => c.handle.toLowerCase() === clean);
+  return found ?? null;
+}
+
+/** Follow / unfollow a creator */
+export function toggleFollow(handle: string) {
+  const clean = handle.replace(/^@/, "").toLowerCase();
+  if (state.currentUser.handle.toLowerCase() === clean) return; // cannot follow yourself
+  const currentlyFollowing = !!state.following[clean];
+  const nextFollowing = !currentlyFollowing;
+  const updatedFollowing = { ...state.following, [clean]: nextFollowing };
+
+  // Also update creator's follower count in state
+  const updatedCreators = state.creators.map((c) => {
+    if (c.handle.toLowerCase() === clean) {
+      const curFollowers = c.followers ?? 1000;
+      return { ...c, followers: Math.max(0, curFollowers + (nextFollowing ? 1 : -1)) };
+    }
+    return c;
+  });
+
+  set({ following: updatedFollowing, creators: updatedCreators });
+  try {
+    localStorage.setItem(FOLLOWING_STORAGE_KEY, JSON.stringify(updatedFollowing));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function isFollowing(handle: string): boolean {
+  const clean = handle.replace(/^@/, "").toLowerCase();
+  return !!state.following[clean];
+}
+
+/** Trip funds accessors & mutators */
+export function getFundsByOwner(handle: string): TripFund[] {
+  const clean = handle.replace(/^@/, "").toLowerCase();
+  return state.funds.filter((f) => f.ownerHandle.toLowerCase() === clean);
+}
+
+export function getActiveFundsByOwner(handle: string): TripFund[] {
+  return getFundsByOwner(handle).filter((f) => f.status === "active");
+}
+
+export function getFundById(fundId: string): TripFund | undefined {
+  return state.funds.find((f) => f.id === fundId);
+}
+
+export function getContributionsForFund(fundId: string): Contribution[] {
+  return state.contributions
+    .filter((c) => c.fundId === fundId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function createTripFund(
+  fundData: Omit<TripFund, "id" | "ownerHandle" | "raised" | "status" | "createdAt">,
+): TripFund {
+  const newFund: TripFund = {
+    ...fundData,
+    id: `fund-${Date.now()}`,
+    ownerHandle: state.currentUser.handle,
+    raised: 0,
+    status: "active",
+    createdAt: new Date().toISOString(),
+  };
+  const updated = [newFund, ...state.funds];
+  set({ funds: updated });
+  try {
+    localStorage.setItem(FUNDS_STORAGE_KEY, JSON.stringify(updated));
+  } catch {
+    /* ignore */
+  }
+  return newFund;
+}
+
+export function updateTripFund(
+  fundId: string,
+  patch: Partial<Omit<TripFund, "id" | "ownerHandle" | "raised">>,
+): TripFund | undefined {
+  const updated = state.funds.map((f) => (f.id === fundId ? { ...f, ...patch } : f));
+  set({ funds: updated });
+  try {
+    localStorage.setItem(FUNDS_STORAGE_KEY, JSON.stringify(updated));
+  } catch {
+    /* ignore */
+  }
+  return updated.find((f) => f.id === fundId);
+}
+
+export function closeTripFund(fundId: string) {
+  updateTripFund(fundId, { status: "closed" });
+}
+
+export function addContribution(
+  fundId: string,
+  amount: number,
+  name?: string,
+  note?: string,
+): { contribution: Contribution; fund: TripFund } {
+  const targetFund = state.funds.find((f) => f.id === fundId);
+  if (!targetFund) throw new Error("Fund not found");
+  if (targetFund.ownerHandle.toLowerCase() === state.currentUser.handle.toLowerCase()) {
+    throw new Error("You cannot fund your own trip");
+  }
+
+  const newContribution: Contribution = {
+    id: `c-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    fundId,
+    name: name?.trim() || "Anonymous traveller",
+    amount,
+    note: note?.trim() || undefined,
+    createdAt: new Date().toISOString(),
+  };
+
+  const nextRaised = targetFund.raised + amount;
+  const isFullyFunded = nextRaised >= targetFund.goal;
+  const updatedFund: TripFund = {
+    ...targetFund,
+    raised: nextRaised,
+    status: isFullyFunded ? "funded" : targetFund.status,
+  };
+
+  const updatedFunds = state.funds.map((f) => (f.id === fundId ? updatedFund : f));
+  const updatedContributions = [newContribution, ...state.contributions];
+
+  set({ funds: updatedFunds, contributions: updatedContributions });
+
+  try {
+    localStorage.setItem(FUNDS_STORAGE_KEY, JSON.stringify(updatedFunds));
+    localStorage.setItem(CONTRIBUTIONS_STORAGE_KEY, JSON.stringify(updatedContributions));
+  } catch {
+    /* ignore */
+  }
+
+  return { contribution: newContribution, fund: updatedFund };
+}
+
+/** Saved posts mutators */
+export function toggleSavePost(postId: string) {
+  const exists = state.savedPostIds.includes(postId);
+  const updated = exists
+    ? state.savedPostIds.filter((id) => id !== postId)
+    : [...state.savedPostIds, postId];
+  set({ savedPostIds: updated });
+  try {
+    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(updated));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function isPostSaved(postId: string): boolean {
+  return state.savedPostIds.includes(postId);
 }
 
 /** Each post vote moves its place score by 0.5; each direct place vote by 1. */
@@ -333,146 +366,32 @@ export function rankedPlaces(s: State) {
 
 export function votePost(id: string, dir: 1 | -1) {
   const cur = state.votes[id] ?? 0;
-  const nextVote: Vote = cur === dir ? 0 : dir;
-  const upDelta = (nextVote === 1 ? 1 : 0) - (cur === 1 ? 1 : 0);
-  const downDelta = (nextVote === -1 ? 1 : 0) - (cur === -1 ? 1 : 0);
-
-  const updateList = (list: Post[]) =>
-    list.map((p) =>
-      p.id === id
-        ? {
-            ...p,
-            upvotes: Math.max(0, p.upvotes + upDelta),
-            downvotes: Math.max(0, p.downvotes + downDelta),
-          }
-        : p,
-    );
-
-  const nextPosts = updateList(state.posts);
-  const nextReels = updateList(state.reels);
-
-  set({
-    votes: { ...state.votes, [id]: nextVote },
-    posts: nextPosts,
-    reels: nextReels,
-  });
-
-  saveCloudStateToSupabase(nextPosts, nextReels);
+  set({ votes: { ...state.votes, [id]: cur === dir ? 0 : dir } });
 }
 
 export function votePlace(id: string, dir: 1 | -1) {
   const cur = state.placeVotes[id] ?? 0;
-  const next: Vote = cur === dir ? 0 : dir;
-  set({ placeVotes: { ...state.placeVotes, [id]: next } });
-  savePlaceVoteInNeon(id, next);
+  set({ placeVotes: { ...state.placeVotes, [id]: cur === dir ? 0 : dir } });
 }
 
 export function addPost(post: Post, isVideo: boolean) {
-  const nextPosts = isVideo ? state.posts : [post, ...state.posts];
-  const nextReels = isVideo ? [post, ...state.reels] : state.reels;
-  set({ posts: nextPosts, reels: nextReels, dbStatus: "connected" });
-
-  saveCloudStateToSupabase(nextPosts, nextReels);
-}
-
-export function addStory(story: Story) {
-  const nextStories = [story, ...state.stories];
-  set({ stories: nextStories });
-  saveStoryToNeon(story);
-}
-
-export function viewStory(storyId: string) {
-  const nextStories = state.stories.map((st) =>
-    st.id === storyId ? { ...st, views: st.views + 1 } : st,
-  );
-  set({ stories: nextStories });
-  recordStoryViewInNeon(storyId);
-}
-
-export function toggleFollow(handle = "chai.nomad") {
-  const existing = state.creatorStats[handle] ?? {
-    handle,
-    name: creators.find((c) => c.handle === handle)?.name ?? handle,
-    live: true,
-    followersCount: 47300,
-    isFollowing: false,
-    tripsFunded: 12,
-    raisedAmount: 18400,
-    goalAmount: 30000,
-  };
-  const nextFollow = !existing.isFollowing;
-  const nextCount = Math.max(0, existing.followersCount + (nextFollow ? 1 : -1));
-  const updated: CreatorStats = {
-    ...existing,
-    isFollowing: nextFollow,
-    followersCount: nextCount,
-  };
-  set({
-    creatorStats: {
-      ...state.creatorStats,
-      [handle]: updated,
-    },
-  });
-  toggleFollowInNeon(handle, nextFollow);
-  return nextFollow;
-}
-
-export function fuelCreator(handle = "chai.nomad", amount = 500) {
-  const existing = state.creatorStats[handle] ?? defaultCreatorStats["chai.nomad"]!;
-  const updated: CreatorStats = {
-    ...existing,
-    raisedAmount: existing.raisedAmount + amount,
-    tripsFunded: existing.tripsFunded + 1,
-  };
-  set({
-    creatorStats: {
-      ...state.creatorStats,
-      [handle]: updated,
-    },
-  });
-  fuelCreatorInNeon(handle, amount);
-}
-
-export function openCommentsModal(postId: string | null) {
-  set({ activeCommentPostId: postId }, false);
-}
-
-export async function submitComment(postId: string, body: string, author = "you.roamer") {
-  const tempComment: CommentItem = {
-    id: `c_${Date.now()}`,
-    postId,
-    author,
-    body,
-    createdAt: new Date().toISOString(),
-  };
-
-  const prevList = state.commentsByPost[postId] ?? [];
-  const updateList = (list: Post[]) =>
-    list.map((p) => (p.id === postId ? { ...p, comments: p.comments + 1 } : p));
-
-  set({
-    commentsByPost: {
-      ...state.commentsByPost,
-      [postId]: [tempComment, ...prevList],
-    },
-    posts: updateList(state.posts),
-    reels: updateList(state.reels),
-  });
-
-  await addCommentInNeon(postId, body, author);
+  if (isVideo) set({ reels: [post, ...state.reels] });
+  else set({ posts: [post, ...state.posts] });
 }
 
 export function _reset() {
   state = {
+    currentUser: getInitialUser(),
+    creators: seedCreators,
     posts: seedPosts,
     reels: seedReels,
-    stories: initialStories,
-    creatorStats: defaultCreatorStats,
-    commentsByPost: {},
-    activeCommentPostId: null,
+    funds: seedTripFunds,
+    contributions: seedContributions,
     votes: {},
     placeVotes: {},
-    dbStatus: "connected",
+    following: {},
+    savedPostIds: [],
   };
 }
+
 export const getState = () => state;

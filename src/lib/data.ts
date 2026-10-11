@@ -18,19 +18,46 @@ export type Place = {
   baseScore: number;
   image: string;
 };
-export type Creator = { handle: string; name: string; live?: boolean };
-export type Post = {
+export type Creator = {
+  handle: string;
+  name: string;
+  bio?: string;
+  avatar?: string | null;
+  cover?: string;
+  followers?: number;
+  live?: boolean;
+};
+
+export type User = {
   id: string;
-  creator: string;
+  name: string;
+  handle: string;
+  bio: string;
+  avatar: string | null;
+  cover: string;
+};
+
+export type TripFund = {
+  id: string;
+  ownerHandle: string;
+  title: string;
   placeId: string;
-  caption: string;
-  image?: string;
-  video?: string;
-  upvotes: number;
-  downvotes: number;
-  comments: number;
-  shares: number;
-  views: number;
+  goal: number;
+  raised: number;
+  endDate: string;
+  story: string;
+  cover?: string;
+  status: "active" | "funded" | "closed";
+  createdAt: string;
+};
+
+export type Contribution = {
+  id: string;
+  fundId: string;
+  name: string;
+  amount: number;
+  note?: string;
+  createdAt: string;
 };
 
 export const places: Place[] = [
@@ -217,12 +244,51 @@ export const places: Place[] = [
 ];
 
 export const creators: Creator[] = [
-  { handle: "chai.nomad", name: "Anu Joseph", live: true },
-  { handle: "roamwithrahul", name: "Rahul Nair", live: true },
-  { handle: "backpackbinu", name: "Binu Thomas" },
-  { handle: "meera.maps", name: "Meera K" },
-  { handle: "trekkingtess", name: "Tess Mathew", live: true },
-  { handle: "foodiefaiz", name: "Faiz Ali" },
+  {
+    handle: "chai.nomad",
+    name: "Anu Joseph",
+    bio: "Chai enthusiast & slow-travel seeker wandering across Western Ghats and historic ruins ☕✨",
+    cover: hills,
+    followers: 47300,
+    live: true,
+  },
+  {
+    handle: "roamwithrahul",
+    name: "Rahul Nair",
+    bio: "Motorcycles, misty switchbacks and quiet backwater canals. Based in Kochi.",
+    cover: backwaters,
+    followers: 28400,
+    live: true,
+  },
+  {
+    handle: "backpackbinu",
+    name: "Binu Thomas",
+    bio: "Heritage architecture, ancient stone temples & local food explorer.",
+    cover: temple,
+    followers: 19200,
+  },
+  {
+    handle: "meera.maps",
+    name: "Meera K",
+    bio: "Cartographer by day, cliff-sunset watcher by evening. Living out of a 40L rucksack.",
+    cover: beach,
+    followers: 34100,
+  },
+  {
+    handle: "trekkingtess",
+    name: "Tess Mathew",
+    bio: "High altitude passes, cold desert trails & Himalayan summits 🏔️",
+    cover: trek,
+    followers: 52000,
+    live: true,
+  },
+  {
+    handle: "foodiefaiz",
+    name: "Faiz Ali",
+    bio: "Hunting midnight parottas, Malabar biryanis and coastal street eats 🌶️",
+    cover: food,
+    followers: 41800,
+  },
 ];
 
 const V = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/";
@@ -297,3 +363,204 @@ export const seedReels: Post[] = [
 
 export const formatCount = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
+
+/** Formats Indian currency (e.g. ₹18k, ₹1.2L, ₹500) */
+export const formatMoneyShort = (n: number) => {
+  if (n >= 100000) return `₹${(n / 100000).toFixed(n % 100000 === 0 ? 0 : 1)}L`;
+  if (n >= 1000) return `₹${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
+  return `₹${n}`;
+};
+
+export const formatMoneyFull = (n: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
+
+export const seedTripFunds: TripFund[] = [
+  // Anu Joseph (@chai.nomad)
+  {
+    id: "fund-anu-1",
+    ownerHandle: "chai.nomad",
+    title: "Spiti Valley High Passes Exploration",
+    placeId: "ladakh",
+    goal: 30000,
+    raised: 18400,
+    endDate: new Date(Date.now() + 18 * 86400000).toISOString(),
+    story:
+      "Documenting the ancient cliff monasteries of Dhankar and Key, capturing dawn light over the Spiti riverbed with daily photo dispatches.",
+    cover: hills,
+    status: "active",
+    createdAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+  },
+  {
+    id: "fund-anu-2",
+    ownerHandle: "chai.nomad",
+    title: "Munnar Tea Trail & Wild Elephants",
+    placeId: "munnar",
+    goal: 8000,
+    raised: 8200,
+    endDate: new Date(Date.now() - 2 * 86400000).toISOString(),
+    story:
+      "A 4-day slow trek through heritage tea estates and cloud-forest ridges in the high ranges of Munnar.",
+    cover: hills,
+    status: "funded",
+    createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+  },
+  {
+    id: "fund-anu-3",
+    ownerHandle: "chai.nomad",
+    title: "Varkala Cliff Sunset Photo Series",
+    placeId: "varkala",
+    goal: 5000,
+    raised: 2800,
+    endDate: new Date(Date.now() + 12 * 86400000).toISOString(),
+    story:
+      "Capturing the evening light, fisherfolk boats, and cliffside culture along North Cliff.",
+    cover: beach,
+    status: "active",
+    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+  },
+
+  // Rahul Nair (@roamwithrahul)
+  {
+    id: "fund-rahul-1",
+    ownerHandle: "roamwithrahul",
+    title: "Western Ghats Monsoon Bike Odyssey",
+    placeId: "munnar",
+    goal: 22000,
+    raised: 15600,
+    endDate: new Date(Date.now() + 14 * 86400000).toISOString(),
+    story:
+      "Riding through 40 switchbacks in the mist, exploring untouched tea plantations and hill trails.",
+    cover: hills,
+    status: "active",
+    createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
+  },
+  {
+    id: "fund-rahul-2",
+    ownerHandle: "roamwithrahul",
+    title: "Vembanad Lake Kayaking Expedition",
+    placeId: "kumarakom",
+    goal: 12000,
+    raised: 12000,
+    endDate: new Date(Date.now() - 15 * 86400000).toISOString(),
+    story: "Quiet paddle through early morning bird sanctuaries and backwater hamlet canals.",
+    cover: backwaters,
+    status: "funded",
+    createdAt: new Date(Date.now() - 40 * 86400000).toISOString(),
+  },
+
+  // Tess Mathew (@trekkingtess)
+  {
+    id: "fund-tess-1",
+    ownerHandle: "trekkingtess",
+    title: "Hampta Pass Snow Trek Film",
+    placeId: "manali",
+    goal: 25000,
+    raised: 19500,
+    endDate: new Date(Date.now() + 21 * 86400000).toISOString(),
+    story:
+      "Documenting the crossover from lush Kullu valleys into the desolate moonscapes of Lahaul.",
+    cover: trek,
+    status: "active",
+    createdAt: new Date(Date.now() - 12 * 86400000).toISOString(),
+  },
+
+  // Binu Thomas (@backpackbinu)
+  {
+    id: "fund-binu-1",
+    ownerHandle: "backpackbinu",
+    title: "Lost Temples of Hampi Photo Book",
+    placeId: "hampi",
+    goal: 15000,
+    raised: 9200,
+    endDate: new Date(Date.now() + 9 * 86400000).toISOString(),
+    story:
+      "Mapping boulder trails and Vijayanagara ruins with architectural notes and 35mm film shots.",
+    cover: temple,
+    status: "active",
+    createdAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+  },
+];
+
+export const seedContributions: Contribution[] = [
+  // Contributions for fund-anu-1
+  {
+    id: "c-1",
+    fundId: "fund-anu-1",
+    name: "Arjun Pillai",
+    amount: 1000,
+    note: "Bring back those mountain sunset frames! 🏔️",
+    createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+  },
+  {
+    id: "c-2",
+    fundId: "fund-anu-1",
+    name: "Devika Menon",
+    amount: 500,
+    note: "Fueling your Spiti journey, safe travels Anu!",
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+  },
+  {
+    id: "c-3",
+    fundId: "fund-anu-1",
+    name: "Kiran R",
+    amount: 500,
+    note: "Can't wait to see the monastery reels ✨",
+    createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+  },
+  {
+    id: "c-4",
+    fundId: "fund-anu-1",
+    name: "Anonymous traveller",
+    amount: 100,
+    note: "Cup of tea on the pass ☕",
+    createdAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+  },
+  {
+    id: "c-5",
+    fundId: "fund-anu-1",
+    name: "Maya George",
+    amount: 2000,
+    note: "Keep inspiring us roamer!",
+    createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
+  },
+
+  // Contributions for fund-anu-2
+  {
+    id: "c-6",
+    fundId: "fund-anu-2",
+    name: "Siddharth",
+    amount: 1000,
+    note: "Tea country rocks! 🍃",
+    createdAt: new Date(Date.now() - 32 * 86400000).toISOString(),
+  },
+  {
+    id: "c-7",
+    fundId: "fund-anu-2",
+    name: "Lakshmi Nair",
+    amount: 500,
+    note: "Enjoy the misty trails!",
+    createdAt: new Date(Date.now() - 33 * 86400000).toISOString(),
+  },
+
+  // Contributions for fund-anu-3
+  {
+    id: "c-8",
+    fundId: "fund-anu-3",
+    name: "Rohan V",
+    amount: 500,
+    note: "Varkala cliff sunsets are pure magic 🌅",
+    createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+  },
+  {
+    id: "c-9",
+    fundId: "fund-anu-3",
+    name: "Anonymous traveller",
+    amount: 100,
+    note: "Have a great trip!",
+    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+  },
+];

@@ -55,7 +55,7 @@
 :root {
   --radius: 0.75rem;
   --orange: #ff4d16;
-  --teal: #00ad9d;
+  --teal: #00b3a4;
   --navy: #17243d;
   --cream: #faf6f0;
   --on-media: #ffffff;
@@ -96,7 +96,7 @@
 
 .dark {
   --orange: #ff4d16;
-  --teal: #00ad9d;
+  --teal: #2dd4c4;
   --navy: #17243d;
   --cream: #111111;
   --on-media: #f5f5f5;

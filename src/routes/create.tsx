@@ -1,10 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Camera, Database, ImagePlus, X } from "lucide-react";
+import { Camera, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { places } from "@/lib/data";
 import { addPost } from "@/lib/store";
-import { uploadMediaToSupabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
 export const MAX_VIDEO_BYTES = 20 * 1024 * 1024;
@@ -37,6 +36,7 @@ function Create() {
   const [dragging, setDragging] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const s = useStore();
   const isVideo = !!file?.type.startsWith("video");
 
   const pick = (f?: File) => {
@@ -47,43 +47,36 @@ function Create() {
     setPreview(URL.createObjectURL(f));
   };
 
-  const submit = async () => {
+  const submit = () => {
     if (!file || !preview) return toast.error("Add a photo or video first");
-    setProgress(12);
-
-    const progressTimer = setInterval(() => {
-      setProgress((p) => (p === null ? null : Math.min(90, p + 12)));
-    }, 120);
-
-    try {
-      const uploadedUrl = await uploadMediaToSupabase(file);
-      clearInterval(progressTimer);
-      setProgress(100);
-
-      addPost(
-        {
-          id: `u${Date.now()}`,
-          creator: anon.trim() || "anonymous.roamer",
-          placeId,
-          caption: caption || "New roam ✨",
-          image: isVideo ? undefined : uploadedUrl,
-          video: isVideo ? uploadedUrl : undefined,
-          upvotes: 0,
-          downvotes: 0,
-          comments: 0,
-          shares: 0,
-          views: 1,
-        },
-        isVideo,
-      );
-
-      toast.success(isVideo ? "Reel published to feed!" : "Post published to feed!");
-      setTimeout(() => nav({ to: isVideo ? "/reels" : "/" }), 250);
-    } catch {
-      clearInterval(progressTimer);
-      setProgress(null);
-      toast.error("Upload failed, please try again");
-    }
+    setProgress(0);
+    const t = setInterval(() => {
+      setProgress((p) => {
+        const n = Math.min(100, (p ?? 0) + 8 + Math.round(Math.random() * 10));
+        if (n >= 100) {
+          clearInterval(t);
+          addPost(
+            {
+              id: `u${Date.now()}`,
+              creator: anon.trim() || s.currentUser.handle,
+              placeId,
+              caption: caption || "New roam ✨",
+              image: isVideo ? undefined : preview,
+              video: isVideo ? preview : undefined,
+              upvotes: 0,
+              downvotes: 0,
+              comments: 0,
+              shares: 0,
+              views: 0,
+            },
+            isVideo,
+          );
+          toast.success("Posted!");
+          setTimeout(() => nav({ to: isVideo ? "/reels" : "/" }), 300);
+        }
+        return n;
+      });
+    }, 150);
   };
 
   const field =
@@ -91,14 +84,7 @@ function Create() {
   return (
     <div className="px-4 pb-2 pt-[calc(var(--safe-top)+0.75rem)] lg:px-8 lg:py-10">
       <div className="lg:mx-auto lg:max-w-[560px] lg:rounded-[20px] lg:border lg:border-border lg:bg-card lg:p-7 lg:shadow-card">
-        <div className="flex items-center justify-between gap-2">
-          <h1 className="font-display text-[22px] font-normal text-foreground">Share a roam</h1>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <Database size={12} />
-            Neon DB Live
-          </span>
-        </div>
-
+        <h1 className="font-display text-[22px] font-normal text-foreground">Share a roam</h1>
         <label
           onDragOver={(e) => {
             e.preventDefault();

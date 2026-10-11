@@ -1,4 +1,4 @@
-import { useProfileAvatar } from "@/hooks/use-profile-avatar";
+import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const tones = ["bg-primary", "bg-teal", "bg-navy"];
@@ -12,19 +12,23 @@ export function Avatar({
   src?: string | null;
   className?: string;
 }) {
-  const { avatar: profileAvatar } = useProfileAvatar();
-  const isProfileUser = name === "Anu Joseph" || name === "chai.nomad";
-  const imageSrc = src ?? (isProfileUser ? profileAvatar : null);
+  const { currentUser } = useStore();
+  const isCurrentUser =
+    name === currentUser.name || name === currentUser.handle || name === `@${currentUser.handle}`;
+
+  const imageSrc = src !== undefined ? src : isCurrentUser ? currentUser.avatar : null;
 
   const tone = tones[name.length % tones.length];
-  const initials = name
-    .replace(/[^a-zA-Z ]/g, " ")
-    .trim()
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials =
+    name
+      .replace(/^@/, "")
+      .replace(/[^a-zA-Z0-9 ]/g, " ")
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "R";
 
   return (
     <div
