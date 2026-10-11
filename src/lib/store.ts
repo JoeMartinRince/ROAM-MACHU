@@ -16,10 +16,74 @@ import {
   type TripFund,
   type User,
 } from "./data";
+import { recordStoryViewInNeon, saveStoryToNeon, type Story } from "./supabase";
 
-export { demoAccounts, formatMoneyFull, formatMoneyShort, type DemoAccount };
+export { demoAccounts, formatMoneyFull, formatMoneyShort, type DemoAccount, type Story };
 
 export type Vote = 1 | -1 | 0;
+
+export const initialStories: Story[] = [
+  {
+    id: "s1",
+    creator: "chai.nomad",
+    creatorName: "Anu Joseph",
+    placeId: "alleppey",
+    caption: "Sunrise shikara ride through Alleppey canals 🛶✨",
+    mediaUrl: places.find((p) => p.id === "alleppey")?.image,
+    mediaType: "image",
+    views: 1420,
+  },
+  {
+    id: "s2",
+    creator: "roamwithrahul",
+    creatorName: "Rahul Nair",
+    placeId: "munnar",
+    caption: "6 AM tea estate walk in Kolukkumalai 🌫️🍵",
+    mediaUrl: places.find((p) => p.id === "munnar")?.image,
+    mediaType: "image",
+    views: 980,
+  },
+  {
+    id: "s3",
+    creator: "monsoon.meera",
+    creatorName: "Meera Menon",
+    placeId: "athirappilly",
+    caption: "Monsoon spray from Athirappilly viewpoint 💦",
+    mediaUrl: places.find((p) => p.id === "athirappilly")?.image,
+    mediaType: "image",
+    views: 760,
+  },
+  {
+    id: "s4",
+    creator: "arjun.wanders",
+    creatorName: "Arjun Das",
+    placeId: "varkala",
+    caption: "North Cliff golden hour + fresh lime soda 🌅",
+    mediaUrl: places.find((p) => p.id === "varkala")?.image,
+    mediaType: "image",
+    views: 1890,
+  },
+  {
+    id: "s5",
+    creator: "fathima.fly",
+    creatorName: "Fathima Rasheed",
+    placeId: "ladakh",
+    caption: "Pangong Lake blue hits different at 14,000 ft 🏔️",
+    mediaUrl: places.find((p) => p.id === "ladakh")?.image,
+    mediaType: "image",
+    views: 2310,
+  },
+  {
+    id: "s6",
+    creator: "jerin.on.road",
+    creatorName: "Jerin Thomas",
+    placeId: "kochi",
+    caption: "Hot pazhampori + beef roast in Fort Kochi 🔥",
+    mediaUrl: places.find((p) => p.id === "kochi")?.image,
+    mediaType: "image",
+    views: 1650,
+  },
+];
 
 export type CommentItem = {
   id: string;
@@ -51,6 +115,7 @@ export type State = {
   wallets: Record<string, number>;
   profileEdits: Record<string, Partial<User>>;
   creators: Creator[];
+  stories: Story[];
   posts: Post[];
   reels: Post[];
   funds: TripFund[];
@@ -75,6 +140,7 @@ export type State = {
 const ACTIVE_USER_KEY = "roam-active-user";
 const PROFILE_EDITS_KEY = "roam-profile-edits";
 const WALLETS_STORAGE_KEY = "roam-wallets";
+const STORIES_STORAGE_KEY = "roam-stories";
 const FUNDS_STORAGE_KEY = "roam-trip-funds";
 const CONTRIBUTIONS_STORAGE_KEY = "roam-contributions";
 const FOLLOWING_BY_ACCT_KEY = "roam-following-by-account";
@@ -160,6 +226,20 @@ export function getInitialUser(): User {
   const activeId = getStoredActiveAccountId();
   const edits = getStoredProfileEdits();
   return buildUserForAccount(activeId, edits);
+}
+
+function getStoredStories(): Story[] {
+  if (typeof window === "undefined") return initialStories;
+  try {
+    const raw = localStorage.getItem(STORIES_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    /* fallback to initialStories */
+  }
+  return initialStories;
 }
 
 function getStoredFunds(): TripFund[] {
@@ -310,6 +390,7 @@ function createInitialState(): State {
     wallets,
     profileEdits,
     creators: computeCreatorsList(profileEdits, followingByAccount),
+    stories: getStoredStories(),
     posts: seedPosts,
     reels: seedReels,
     funds: getStoredFunds(),
@@ -443,6 +524,7 @@ export function resetDemoData() {
   const keysToClear = [
     PROFILE_EDITS_KEY,
     WALLETS_STORAGE_KEY,
+    STORIES_STORAGE_KEY,
     FUNDS_STORAGE_KEY,
     CONTRIBUTIONS_STORAGE_KEY,
     FOLLOWING_BY_ACCT_KEY,
@@ -472,6 +554,7 @@ export function resetDemoData() {
     wallets: freshWallets,
     profileEdits: {},
     creators: computeCreatorsList({}, {}),
+    stories: initialStories,
     posts: seedPosts,
     reels: seedReels,
     funds: seedTripFunds,
@@ -583,9 +666,9 @@ export function getFollowerCount(handle: string): number {
 }
 
 /** Follow / unfollow a creator (persists per active account) */
-export function toggleFollow(handle: string) {
+export function toggleFollow(handle: string): boolean {
   const clean = handle.replace(/^@/, "").toLowerCase();
-  if (state.currentUser.handle.toLowerCase() === clean) return; // cannot follow yourself
+  if (state.currentUser.handle.toLowerCase() === clean) return false; // cannot follow yourself
 
   const activeId = state.activeAccountId;
   const acctFollowing = state.followingByAccount[activeId] ?? {};
@@ -624,11 +707,35 @@ export function toggleFollow(handle: string) {
       message: `${actorFirst} started following you`,
     });
   }
+
+  return nextFollowing;
 }
 
 export function isFollowing(handle: string): boolean {
   const clean = handle.replace(/^@/, "").toLowerCase();
   return !!state.following[clean];
+}
+
+export function addStory(story: Story) {
+  const updated = [story, ...state.stories];
+  set({ stories: updated });
+  try {
+    localStorage.setItem(STORIES_STORAGE_KEY, JSON.stringify(updated));
+  } catch {
+    /* ignore */
+  }
+  void saveStoryToNeon(story);
+}
+
+export function viewStory(id: string) {
+  const updated = state.stories.map((st) => (st.id === id ? { ...st, views: st.views + 1 } : st));
+  set({ stories: updated });
+  try {
+    localStorage.setItem(STORIES_STORAGE_KEY, JSON.stringify(updated));
+  } catch {
+    /* ignore */
+  }
+  void recordStoryViewInNeon(id);
 }
 
 /** Trip funds accessors & mutators */

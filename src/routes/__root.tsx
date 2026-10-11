@@ -19,7 +19,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Splash } from "@/components/Splash";
 import { BottomNav, DesktopSidebar } from "@/components/BottomNav";
 import { CommentsDrawer, ShareDrawer } from "@/components/CommentsDrawer";
-import { DemoModeBanner, NotificationsSheet, SettingsSheet } from "@/components/DemoModals";
+import { NotificationsSheet, SettingsSheet } from "@/components/DemoModals";
 import { getResolvedTheme, syncThemeDom, useTheme } from "@/hooks/use-theme";
 
 const THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#000000":"#FFFFFF");}catch(e){}try{if(sessionStorage.getItem("roam-splash-seen"))document.documentElement.setAttribute("data-splash-seen","1");}catch(e){}})();`;
@@ -198,7 +198,6 @@ function RootComponent() {
             : "relative mx-auto min-h-dvh max-w-md bg-background pb-[var(--bottom-nav-clearance)] shadow-card lg:mx-0 lg:max-w-none lg:pb-0 lg:pl-[260px] lg:shadow-none"
         }
       >
-        <DemoModeBanner />
         <div key={pathname} className="animate-page-enter">
           <Outlet />
         </div>

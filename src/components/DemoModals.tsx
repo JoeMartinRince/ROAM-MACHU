@@ -38,26 +38,6 @@ function formatRelativeTime(iso: string): string {
   return `${diffDays}d ago`;
 }
 
-/** Thin 24px top banner shown when any non-Guest demo account is active */
-export function DemoModeBanner() {
-  const store = useStore();
-  const { currentUser } = store;
-
-  if (currentUser.isGuest) return null;
-
-  return (
-    <button
-      type="button"
-      onClick={() => openSettingsModal(true)}
-      className="relative z-40 flex h-6 w-full items-center justify-center gap-2 border-b border-teal/20 bg-accent px-3 text-[11px] font-medium text-teal transition-colors hover:brightness-95"
-    >
-      <span className="size-1.5 rounded-full bg-teal" />
-      <span className="truncate">Demo mode: {currentUser.name}</span>
-      <span className="font-mono text-[10px] opacity-80 underline underline-offset-2">Switch</span>
-    </button>
-  );
-}
-
 /** Notification Bell button with unread count badge */
 export function NotificationBellButton({ className }: { className?: string }) {
   const store = useStore();

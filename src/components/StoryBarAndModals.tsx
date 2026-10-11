@@ -15,7 +15,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatCount, places } from "@/lib/data";
-import { addStory, toggleFollow, useStore, viewStory } from "@/lib/store";
+import {
+  addStory,
+  getCreatorByHandle,
+  isFollowing,
+  toggleFollow,
+  useStore,
+  viewStory,
+} from "@/lib/store";
 import { uploadMediaToSupabase, type Story } from "@/lib/supabase";
 import { Avatar } from "./Avatar";
 import { cn } from "@/lib/utils";
@@ -31,8 +38,8 @@ export function StoryBar() {
   const [isVideo, setIsVideo] = useState(false);
   const [placeId, setPlaceId] = useState(places[0]!.id);
   const [caption, setCaption] = useState("");
-  const [authorName, setAuthorName] = useState("Anu Joseph");
-  const [authorHandle, setAuthorHandle] = useState("chai.nomad");
+  const [authorName, setAuthorName] = useState(s.currentUser.name);
+  const [authorHandle, setAuthorHandle] = useState(s.currentUser.handle);
   const [uploading, setUploading] = useState(false);
 
   const stories = s.stories;
@@ -40,10 +47,30 @@ export function StoryBar() {
   const activeStoryId = activeStory?.id;
 
   useEffect(() => {
+    setAuthorName(s.currentUser.name);
+    setAuthorHandle(s.currentUser.handle);
+  }, [s.currentUser.name, s.currentUser.handle]);
+
+  useEffect(() => {
     if (activeStoryId) {
       viewStory(activeStoryId);
     }
   }, [activeStoryId]);
+
+  useEffect(() => {
+    if (activeIdx === null) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveIdx(null);
+      } else if (e.key === "ArrowLeft" && activeIdx > 0) {
+        setActiveIdx(activeIdx - 1);
+      } else if (e.key === "ArrowRight" && activeIdx < stories.length - 1) {
+        setActiveIdx(activeIdx + 1);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeIdx, stories.length]);
 
   const onFilePick = (f?: File) => {
     if (!f) return;
@@ -60,8 +87,8 @@ export function StoryBar() {
       const mediaUrl = file ? await uploadMediaToSupabase(file) : place.image;
       const newStory: Story = {
         id: `st_${Date.now()}`,
-        creator: authorHandle.trim() || "chai.nomad",
-        creatorName: authorName.trim() || "Anu Joseph",
+        creator: authorHandle.trim() || s.currentUser.handle,
+        creatorName: authorName.trim() || s.currentUser.name,
         placeId,
         caption: caption.trim() || `Live from ${place.name} ✨`,
         mediaUrl,
@@ -70,7 +97,7 @@ export function StoryBar() {
         createdAt: new Date().toISOString(),
       };
       addStory(newStory);
-      toast.success("Story published to Neon Database!");
+      toast.success("Story published!");
       setCreateOpen(false);
       setFile(null);
       setPreview(null);
@@ -86,14 +113,18 @@ export function StoryBar() {
   return (
     <>
       <div className="no-scrollbar -mx-4 mt-2.5 flex items-start gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mt-0 lg:gap-4 lg:px-0">
-        {/* + Add trip button (preserves friend's user Avatar + Plus badge design) */}
+        {/* + Add trip button */}
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
           className="tap-scale flex w-15 shrink-0 flex-col items-center gap-1 lg:w-16 lg:gap-1.5"
         >
           <span className="relative grid size-14 place-items-center rounded-full border border-dashed border-border bg-muted p-[2px] transition-colors hover:border-primary/50 lg:size-16">
-            <Avatar name="Anu Joseph" className="size-full text-xs font-semibold ring-0" />
+            <Avatar
+              name={s.currentUser.name}
+              src={s.currentUser.avatar}
+              className="size-full text-xs font-semibold ring-0"
+            />
             <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground shadow-xs ring-2 ring-background lg:size-5.5">
               <Plus size={13} strokeWidth={2.5} />
             </span>
@@ -103,10 +134,10 @@ export function StoryBar() {
           </span>
         </button>
 
-        {/* Story circles from Neon DB */}
+        {/* Story circles */}
         {stories.map((st, idx) => {
-          const cStat = s.creatorStats[st.creator];
-          const isLive = cStat?.live ?? idx < 3;
+          const creatorInfo = getCreatorByHandle(st.creator);
+          const isLive = creatorInfo?.live ?? idx < 3;
           return (
             <button
               key={st.id}
@@ -131,6 +162,7 @@ export function StoryBar() {
                   ) : (
                     <Avatar
                       name={st.creatorName}
+                      src={creatorInfo?.avatar}
                       className="size-full text-xs font-semibold ring-0"
                     />
                   )}
@@ -175,12 +207,14 @@ export function StoryBar() {
             {/* Header: Creator + Follow button + Close */}
             <div className="absolute inset-x-3 top-6 z-20 flex items-center justify-between gap-2 pt-1">
               <Link
-                to="/profile"
+                to="/u/$handle"
+                params={{ handle: activeStory.creator }}
                 onClick={() => setActiveIdx(null)}
                 className="flex min-w-0 items-center gap-2.5"
               >
                 <Avatar
                   name={activeStory.creatorName}
+                  src={getCreatorByHandle(activeStory.creator)?.avatar}
                   className="size-9 text-xs ring-2 ring-white/80"
                 />
                 <div className="min-w-0 text-left">
@@ -192,31 +226,32 @@ export function StoryBar() {
               </Link>
 
               <div className="flex items-center gap-2">
-                {(() => {
-                  const isFollowing = s.creatorStats[activeStory.creator]?.isFollowing ?? false;
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const next = toggleFollow(activeStory.creator);
-                        toast.success(
-                          next
-                            ? `Following @${activeStory.creator} (saved to Neon DB)`
-                            : `Unfollowed @${activeStory.creator}`,
-                        );
-                      }}
-                      className={cn(
-                        "tap-scale inline-flex items-center gap-1 rounded-full px-3 py-1 font-display text-xs font-normal transition",
-                        isFollowing
-                          ? "bg-white/20 text-white backdrop-blur-md"
-                          : "bg-primary text-primary-foreground shadow-sm",
-                      )}
-                    >
-                      {isFollowing ? <UserCheck size={13} /> : <UserPlus size={13} />}
-                      <span>{isFollowing ? "Following" : "Follow"}</span>
-                    </button>
-                  );
-                })()}
+                {activeStory.creator.toLowerCase() !== s.currentUser.handle.toLowerCase() &&
+                  (() => {
+                    const following = isFollowing(activeStory.creator);
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = toggleFollow(activeStory.creator);
+                          toast.success(
+                            next
+                              ? `Following @${activeStory.creator}`
+                              : `Unfollowed @${activeStory.creator}`,
+                          );
+                        }}
+                        className={cn(
+                          "tap-scale inline-flex items-center gap-1 rounded-full px-3 py-1 font-display text-xs font-normal transition",
+                          following
+                            ? "bg-white/20 text-white backdrop-blur-md"
+                            : "bg-primary text-primary-foreground shadow-sm",
+                        )}
+                      >
+                        {following ? <UserCheck size={13} /> : <UserPlus size={13} />}
+                        <span>{following ? "Following" : "Follow"}</span>
+                      </button>
+                    );
+                  })()}
                 <button
                   type="button"
                   aria-label="Close story"
