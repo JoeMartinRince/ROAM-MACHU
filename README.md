@@ -23,7 +23,7 @@
   - Backing a trip deducts from the contributor's wallet, credits the fund's raised total, adds the contributor's real name and avatar to the **Supporters Wall**, lists the contribution under **Trips I fueled (Funded by me)** on the contributor's profile, and sends a real-time notification to the creator's notification bell.
   - Follows persist per account and send follower notifications to the target creator.
                    
----
+---           
 
 ## 👥 Demo Accounts (`Settings → Demo login`)
 
