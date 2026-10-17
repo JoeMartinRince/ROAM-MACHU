@@ -1,7 +1,7 @@
 #  Roam Machu — Social Travel Discovery & Community Trip Funding
 
 **Roam Machu** (`മച്ചു`) is a mobile-first social travel discovery and creator trip-funding web application built with **TanStack Start**, **React 19**, **Tailwind CSS v4**, and **Leaflet**. Travellers share visual stories and reels across Kerala and India, vote on places using **Pwoli** (upvote) and **Waste** (downvote), climb the live destination leaderboard, and crowd-fund upcoming creator expeditions through **Trip Funds**.
-    
+               
 ---
 
 ## ✨ Key Features
