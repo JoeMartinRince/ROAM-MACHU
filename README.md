@@ -24,7 +24,7 @@
   - Follows persist per account and send follower notifications to the target creator.
                    
 ---           
-
+     
 ## 👥 Demo Accounts (`Settings → Demo login`)
 
 Open **Profile (`/profile`) → Settings gear (`⚙️`)** (or click **Settings** in the desktop sidebar footer, or tap the top **Demo mode** banner) to switch accounts with one tap:
