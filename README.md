@@ -54,7 +54,7 @@ Open **Profile (`/profile`) → Settings gear (`⚙️`)** (or click **Settings*
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack       
 
 - **Framework**: [TanStack Start](https://tanstack.com/start) + [TanStack Router](https://tanstack.com/router)
 - **UI Library**: React 19 + TypeScript
